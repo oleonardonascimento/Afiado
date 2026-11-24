@@ -81,7 +81,7 @@ export function PlanFormDialog({ plan, services, onClose }: PlanFormDialogProps)
             render={({ field }) => (
               <fieldset className="flex flex-col gap-2">
                 <legend className="mb-1 text-sm font-medium">Serviços incluídos</legend>
-                <p className="text-sm text-text-muted">Deixe o limite vazio para "à vontade".</p>
+                <p className="text-sm text-text-muted">Deixe o limite vazio para “à vontade”.</p>
                 {services
                   .filter((s) => s.active)
                   .map((s) => {
