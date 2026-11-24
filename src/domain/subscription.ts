@@ -43,13 +43,19 @@ export function coveredServiceIds(
   date: string,
 ): string[] {
   if (!plan.rules.allowedWeekdays.includes(weekdayOf(date))) return [];
-  if (usage.lastCoveredDate && diffDays(date, usage.lastCoveredDate) < plan.rules.minDaysBetweenUses) {
+  if (
+    usage.lastCoveredDate &&
+    diffDays(date, usage.lastCoveredDate) < plan.rules.minDaysBetweenUses
+  ) {
     return [];
   }
   return serviceIds.filter((id) => {
     const benefit = plan.benefits.find((b) => b.serviceId === id);
     if (!benefit) return false;
-    return benefit.monthlyLimit === null || (usage.byService[id] ?? 0) < benefit.monthlyLimit;
+    return (
+      benefit.monthlyLimit === null ||
+      (usage.byService[id] ?? 0) < benefit.monthlyLimit
+    );
   });
 }
 
@@ -60,13 +66,21 @@ export type BookingTotals = {
   payableCents: number;
 };
 
-export function bookingTotals(chosen: Service[], coveredIds: string[]): BookingTotals {
+export function bookingTotals(
+  chosen: Service[],
+  coveredIds: string[],
+): BookingTotals {
   const durationMinutes = chosen.reduce((s, x) => s + x.durationMinutes, 0);
   const priceCents = chosen.reduce((s, x) => s + x.priceCents, 0);
   const coveredCents = chosen
     .filter((x) => coveredIds.includes(x.id))
     .reduce((s, x) => s + x.priceCents, 0);
-  return { durationMinutes, priceCents, coveredCents, payableCents: priceCents - coveredCents };
+  return {
+    durationMinutes,
+    priceCents,
+    coveredCents,
+    payableCents: priceCents - coveredCents,
+  };
 }
 
 /** Uso restante legível: "2 de 4 barbas" ou "à vontade". */

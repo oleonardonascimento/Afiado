@@ -25,8 +25,16 @@ describe("cash", () => {
   ];
 
   it("esperado = abertura + entradas − saídas, por forma, só da sessão", () => {
-    const expected = cashExpected({ id: "cash-1", openingCents: 20000 }, movements);
-    expect(expected).toEqual({ cash: 20000 + 4500 + 1000 - 3500 - 5000, pix: 7000, debit: 0, credit: 0 });
+    const expected = cashExpected(
+      { id: "cash-1", openingCents: 20000 },
+      movements,
+    );
+    expect(expected).toEqual({
+      cash: 20000 + 4500 + 1000 - 3500 - 5000,
+      pix: 7000,
+      debit: 0,
+      credit: 0,
+    });
   });
 
   it("diferença contado − esperado, por forma e total", () => {
@@ -34,7 +42,12 @@ describe("cash", () => {
       { cash: 17000, pix: 7000, debit: 0, credit: 0 },
       { cash: 16800, pix: 7000, debit: 0, credit: 100 },
     );
-    expect(diff.byMethod).toEqual({ cash: -200, pix: 0, debit: 0, credit: 100 });
+    expect(diff.byMethod).toEqual({
+      cash: -200,
+      pix: 0,
+      debit: 0,
+      credit: 100,
+    });
     expect(diff.totalCents).toBe(-100);
   });
 });

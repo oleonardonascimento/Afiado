@@ -2,7 +2,12 @@
  * Caixa (PRD A6, RF-40..43): valor esperado por forma de pagamento e diferença no fechamento.
  * Esperado = abertura (só dinheiro) + comandas e entradas − saídas e sangrias.
  */
-import { PAYMENT_METHODS, type CashMovement, type CashSession, type PaymentMethod } from "@/domain/entities";
+import {
+  PAYMENT_METHODS,
+  type CashMovement,
+  type CashSession,
+  type PaymentMethod,
+} from "@/domain/entities";
 
 export type ByMethod = Record<PaymentMethod, number>;
 
@@ -24,7 +29,10 @@ export function cashExpected(
   return expected;
 }
 
-export function cashDifference(expected: ByMethod, counted: ByMethod): { byMethod: ByMethod; totalCents: number } {
+export function cashDifference(
+  expected: ByMethod,
+  counted: ByMethod,
+): { byMethod: ByMethod; totalCents: number } {
   const byMethod = emptyByMethod();
   let totalCents = 0;
   for (const method of PAYMENT_METHODS) {

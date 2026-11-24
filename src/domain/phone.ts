@@ -1,7 +1,8 @@
 /** Telefone BR armazenado só com dígitos nacionais: DDD (2) + número (8 ou 9). */
 export function normalizePhone(input: string): string {
   let d = input.replace(/\D/g, "");
-  if (d.startsWith("55") && (d.length === 12 || d.length === 13)) d = d.slice(2);
+  if (d.startsWith("55") && (d.length === 12 || d.length === 13))
+    d = d.slice(2);
   return d;
 }
 

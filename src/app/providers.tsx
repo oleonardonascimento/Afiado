@@ -14,7 +14,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="afiado:theme">
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      storageKey="afiado:theme"
+    >
       <QueryClientProvider client={queryClient}>
         {children}
         <Toaster position="top-center" />

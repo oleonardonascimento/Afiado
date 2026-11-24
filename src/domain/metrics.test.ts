@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { Appointment, Client, Order, Plan, Product, Subscription } from "@/domain/entities";
+import type {
+  Appointment,
+  Client,
+  Order,
+  Plan,
+  Product,
+  Subscription,
+} from "@/domain/entities";
 import {
   averageTicketCents,
   birthdaysBetween,
@@ -15,7 +22,11 @@ import {
   revenueBetween,
 } from "@/domain/metrics";
 
-const order = (closedAt: string, amount: number, status: Order["status"] = "closed"): Order => ({
+const order = (
+  closedAt: string,
+  amount: number,
+  status: Order["status"] = "closed",
+): Order => ({
   id: closedAt,
   clientId: "c1",
   professionalId: "pro-1",
@@ -49,7 +60,13 @@ const orders = [
 
 describe("metrics", () => {
   it("faturamento só de comandas fechadas no intervalo", () => {
-    expect(revenueBetween(orders, "2026-11-24T03:00:00.000Z", "2026-11-25T03:00:00.000Z")).toBe(3000);
+    expect(
+      revenueBetween(
+        orders,
+        "2026-11-24T03:00:00.000Z",
+        "2026-11-25T03:00:00.000Z",
+      ),
+    ).toBe(3000);
     expect(revenueByDay(orders, ["2026-11-23", "2026-11-24"])).toEqual([
       { date: "2026-11-23", cents: 4500 },
       { date: "2026-11-24", cents: 3000 },
@@ -64,7 +81,10 @@ describe("metrics", () => {
   });
 
   it("MRR soma assinaturas ativas", () => {
-    const plans = [{ id: "p1", priceCents: 9900 }, { id: "p2", priceCents: 14900 }] as Plan[];
+    const plans = [
+      { id: "p1", priceCents: 9900 },
+      { id: "p2", priceCents: 14900 },
+    ] as Plan[];
     const subs = [
       { planId: "p1", status: "active" },
       { planId: "p2", status: "active" },
@@ -81,8 +101,12 @@ describe("metrics", () => {
       { id: "c", birthday: null },
       { id: "d", birthday: "2000-12-10" },
     ] as Client[];
-    expect(birthdaysBetween(clients, "2026-11-24", "2026-11-30").map((c) => c.id)).toEqual(["a"]);
-    expect(birthdaysBetween(clients, "2026-12-29", "2027-01-04").map((c) => c.id)).toEqual(["b"]);
+    expect(
+      birthdaysBetween(clients, "2026-11-24", "2026-11-30").map((c) => c.id),
+    ).toEqual(["a"]);
+    expect(
+      birthdaysBetween(clients, "2026-12-29", "2027-01-04").map((c) => c.id),
+    ).toEqual(["b"]);
   });
 
   it("clientes sumidos: último atendimento há mais de N dias", () => {
@@ -93,7 +117,9 @@ describe("metrics", () => {
       { clientId: "a", status: "canceled", start: "2026-11-20T15:00:00.000Z" },
     ] as Appointment[];
     const lapsed = lapsedClients(clients, apts, "2026-11-24", 45);
-    expect(lapsed.map((l) => [l.client.id, l.lastVisit])).toEqual([["a", "2026-09-01"]]);
+    expect(lapsed.map((l) => [l.client.id, l.lastVisit])).toEqual([
+      ["a", "2026-09-01"],
+    ]);
   });
 
   it("estoque baixo e agrupamento", () => {
@@ -136,14 +162,20 @@ describe("metrics", () => {
     const result = occupancyByProfessional(
       [
         apt("2026-11-24T12:00:00.000Z", "2026-11-24T13:00:00.000Z", "done"),
-        apt("2026-11-24T13:00:00.000Z", "2026-11-24T14:00:00.000Z", "scheduled"),
+        apt(
+          "2026-11-24T13:00:00.000Z",
+          "2026-11-24T14:00:00.000Z",
+          "scheduled",
+        ),
         apt("2026-11-24T14:00:00.000Z", "2026-11-24T15:00:00.000Z", "canceled"),
       ],
       shop,
       [pro],
       ["2026-11-24"],
     );
-    expect(result).toEqual([{ professionalId: "pro-1", name: "Rafael", pct: 40 }]);
+    expect(result).toEqual([
+      { professionalId: "pro-1", name: "Rafael", pct: 40 },
+    ]);
   });
 
   it("indicadores do Clube no mês", () => {
@@ -167,7 +199,13 @@ describe("metrics", () => {
       plans,
       "2026-11-01T03:00:00.000Z",
     );
-    expect(result).toEqual({ active: 3, mrrCents: 30000, newThisMonth: 1, canceledThisMonth: 1, pastDue: 1 });
+    expect(result).toEqual({
+      active: 3,
+      mrrCents: 30000,
+      newThisMonth: 1,
+      canceledThisMonth: 1,
+      pastDue: 1,
+    });
   });
 
   it("estatísticas por cliente: visitas concluídas, última visita e total gasto", () => {
@@ -177,7 +215,11 @@ describe("metrics", () => {
       { clientId: "c1", status: "no_show", start: "2026-11-22T15:00:00.000Z" },
     ] as Appointment[];
     const stats = clientStats(apts, orders);
-    expect(stats.get("c1")).toEqual({ visits: 2, lastVisit: "2026-11-20", spentCents: 7500 });
+    expect(stats.get("c1")).toEqual({
+      visits: 2,
+      lastVisit: "2026-11-20",
+      spentCents: 7500,
+    });
     expect(stats.get("outro")).toBeUndefined();
   });
 });

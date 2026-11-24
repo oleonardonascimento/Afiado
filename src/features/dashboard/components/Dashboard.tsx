@@ -16,13 +16,10 @@ import { cn } from "@/lib/cn";
 import { formatBRL, formatDate, formatTime } from "@/lib/format";
 import { firstName } from "@/lib/labels";
 
-const BarChartCard = dynamic(
-  () => import("@/features/dashboard/components/BarChartCard"),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="rounded-card h-72" />,
-  },
-);
+const BarChartCard = dynamic(() => import("@/components/shared/BarChartCard"), {
+  ssr: false,
+  loading: () => <Skeleton className="rounded-card h-72" />,
+});
 
 const reais = (cents: number) => formatBRL(cents).replace(",00", "");
 

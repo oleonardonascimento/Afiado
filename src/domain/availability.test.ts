@@ -59,7 +59,12 @@ describe("availableSlots", () => {
 
   it("pula horários ocupados e cancelados ficam livres", () => {
     const taken = apt({});
-    const canceled = apt({ id: "apt-y", start: "2026-11-27T13:00:00.000Z", end: "2026-11-27T13:30:00.000Z", status: "canceled" });
+    const canceled = apt({
+      id: "apt-y",
+      start: "2026-11-27T13:00:00.000Z",
+      end: "2026-11-27T13:30:00.000Z",
+      status: "canceled",
+    });
     const slots = availableSlots(base({ appointments: [taken, canceled] }));
     expect(times(slots)).not.toContain("12:00");
     expect(times(slots)).not.toContain("11:45");
@@ -69,7 +74,10 @@ describe("availableSlots", () => {
 
   it("aplica o intervalo entre atendimentos", () => {
     const slots = availableSlots(
-      base({ appointments: [apt({})], shop: { ...shop, booking: { ...shop.booking, bufferMinutes: 15 } } }),
+      base({
+        appointments: [apt({})],
+        shop: { ...shop, booking: { ...shop.booking, bufferMinutes: 15 } },
+      }),
     );
     expect(times(slots)).not.toContain("12:30");
     expect(times(slots)).toContain("12:45");
@@ -79,7 +87,14 @@ describe("availableSlots", () => {
     const slots = availableSlots(
       base({
         timeOff: [
-          { id: "off", professionalId: "pro-3", start: "2026-11-27T17:00:00.000Z", end: "2026-11-27T18:00:00.000Z", kind: "block", reason: "" },
+          {
+            id: "off",
+            professionalId: "pro-3",
+            start: "2026-11-27T17:00:00.000Z",
+            end: "2026-11-27T18:00:00.000Z",
+            kind: "block",
+            reason: "",
+          },
         ],
       }),
     );
@@ -96,12 +111,20 @@ describe("availableSlots", () => {
   it("não abre dia fechado, passado, fechamento ou além da janela", () => {
     expect(availableSlots(base({ date: "2026-11-29" }))).toEqual([]); // domingo
     expect(availableSlots(base({ date: "2026-11-25" }))).toEqual([]); // passado
-    expect(availableSlots(base({ shop: { ...shop, closures: [{ date: FRIDAY, reason: "Feriado" }] } }))).toEqual([]);
+    expect(
+      availableSlots(
+        base({
+          shop: { ...shop, closures: [{ date: FRIDAY, reason: "Feriado" }] },
+        }),
+      ),
+    ).toEqual([]);
     expect(availableSlots(base({ date: "2027-01-08" }))).toEqual([]); // > 30 dias
   });
 
   it("barbeiro que não faz o serviço não tem horários", () => {
-    expect(availableSlots(base({ professionalId: "pro-4", serviceIds: ["svc-11"] }))).toEqual([]);
+    expect(
+      availableSlots(base({ professionalId: "pro-4", serviceIds: ["svc-11"] })),
+    ).toEqual([]);
   });
 
   it("qualquer disponível junta os horários e escolhe um barbeiro livre", () => {
@@ -110,13 +133,24 @@ describe("availableSlots", () => {
     expect(new Set(starts).size).toBe(starts.length);
     expect(times(all)[0]).toBe("12:00"); // 09:00 SP (pro-2 e pro-3)
     const blocked = availableSlots(
-      base({ professionalId: null, appointments: [apt({ professionalId: "pro-3" })] }),
+      base({
+        professionalId: null,
+        appointments: [apt({ professionalId: "pro-3" })],
+      }),
     );
-    expect(blocked.find((s) => times([s])[0] === "12:00")?.professionalId).toBe("pro-2");
+    expect(blocked.find((s) => times([s])[0] === "12:00")?.professionalId).toBe(
+      "pro-2",
+    );
   });
 
   it("ignora o próprio agendamento ao remarcar", () => {
     const own = apt({ id: "apt-own" });
-    expect(times(availableSlots(base({ appointments: [own], ignoreAppointmentId: "apt-own" })))).toContain("12:00");
+    expect(
+      times(
+        availableSlots(
+          base({ appointments: [own], ignoreAppointmentId: "apt-own" }),
+        ),
+      ),
+    ).toContain("12:00");
   });
 });

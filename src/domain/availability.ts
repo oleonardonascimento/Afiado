@@ -11,7 +11,14 @@ import type {
   TimeOff,
   TimeRange,
 } from "@/domain/entities";
-import { addDays, atTime, fromMinutes, toMinutes, todayIn, weekdayOf } from "@/lib/calendar";
+import {
+  addDays,
+  atTime,
+  fromMinutes,
+  toMinutes,
+  todayIn,
+  weekdayOf,
+} from "@/lib/calendar";
 
 export type AvailabilityInput = {
   date: string;
@@ -30,19 +37,34 @@ export type AvailabilityInput = {
 
 export type Slot = { start: string; end: string; professionalId: string };
 
-const BLOCKING: Appointment["status"][] = ["scheduled", "confirmed", "in_service", "done"];
+const BLOCKING: Appointment["status"][] = [
+  "scheduled",
+  "confirmed",
+  "in_service",
+  "done",
+];
 
-export function totalDuration(serviceIds: string[], services: Service[]): number {
+export function totalDuration(
+  serviceIds: string[],
+  services: Service[],
+): number {
   return serviceIds.reduce(
-    (sum, id) => sum + (services.find((s) => s.id === id)?.durationMinutes ?? 0),
+    (sum, id) =>
+      sum + (services.find((s) => s.id === id)?.durationMinutes ?? 0),
     0,
   );
 }
 
 /** Barbeiros ativos que fazem todos os serviços escolhidos. */
-export function professionalsFor(serviceIds: string[], professionals: Professional[]): Professional[] {
+export function professionalsFor(
+  serviceIds: string[],
+  professionals: Professional[],
+): Professional[] {
   return professionals.filter(
-    (p) => p.active && serviceIds.length > 0 && serviceIds.every((id) => p.serviceIds.includes(id)),
+    (p) =>
+      p.active &&
+      serviceIds.length > 0 &&
+      serviceIds.every((id) => p.serviceIds.includes(id)),
   );
 }
 
@@ -59,12 +81,20 @@ function intersect(a: TimeRange[], b: TimeRange[]): [number, number][] {
 }
 
 /** Minutos de trabalho do barbeiro no dia (horário da casa ∩ do barbeiro, sem feriados). */
-export function workMinutes(shop: Barbershop, pro: Professional, date: string): number {
+export function workMinutes(
+  shop: Barbershop,
+  pro: Professional,
+  date: string,
+): number {
   if (shop.closures.some((c) => c.date === date)) return 0;
   const weekday = weekdayOf(date);
-  const shopRanges = shop.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
+  const shopRanges =
+    shop.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
   const proRanges = pro.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
-  return intersect(shopRanges, proRanges).reduce((sum, [a, b]) => sum + (b - a), 0);
+  return intersect(shopRanges, proRanges).reduce(
+    (sum, [a, b]) => sum + (b - a),
+    0,
+  );
 }
 
 export function availableSlots(input: AvailabilityInput): Slot[] {
@@ -75,16 +105,25 @@ export function availableSlots(input: AvailabilityInput): Slot[] {
   if (shop.closures.some((c) => c.date === date)) return [];
 
   const duration = totalDuration(input.serviceIds, input.services);
-  if (duration === 0 || input.serviceIds.some((id) => !input.services.find((s) => s.id === id)?.active)) {
+  if (
+    duration === 0 ||
+    input.serviceIds.some(
+      (id) => !input.services.find((s) => s.id === id)?.active,
+    )
+  ) {
     return [];
   }
 
   const weekday = weekdayOf(date);
-  const shopRanges = shop.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
+  const shopRanges =
+    shop.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
   const earliest = now.getTime() + rules.minAdvanceMinutes * 60_000;
   const buffer = rules.bufferMinutes * 60_000;
 
-  const candidates = professionalsFor(input.serviceIds, input.professionals).filter(
+  const candidates = professionalsFor(
+    input.serviceIds,
+    input.professionals,
+  ).filter(
     (p) => input.professionalId === null || p.id === input.professionalId,
   );
 
@@ -96,7 +135,10 @@ export function availableSlots(input: AvailabilityInput): Slot[] {
           a.id !== input.ignoreAppointmentId &&
           BLOCKING.includes(a.status),
       )
-      .map((a) => [Date.parse(a.start) - buffer, Date.parse(a.end) + buffer] as const);
+      .map(
+        (a) =>
+          [Date.parse(a.start) - buffer, Date.parse(a.end) + buffer] as const,
+      );
     const off = input.timeOff
       .filter((t) => t.professionalId === pro.id)
       .map((t) => [Date.parse(t.start), Date.parse(t.end)] as const);
@@ -104,9 +146,14 @@ export function availableSlots(input: AvailabilityInput): Slot[] {
     const bookedCount = busy.length;
 
     const slots: Slot[] = [];
-    const proRanges = pro.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
+    const proRanges =
+      pro.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
     for (const [rangeStart, rangeEnd] of intersect(shopRanges, proRanges)) {
-      for (let t = rangeStart; t + duration <= rangeEnd; t += rules.slotStepMinutes) {
+      for (
+        let t = rangeStart;
+        t + duration <= rangeEnd;
+        t += rules.slotStepMinutes
+      ) {
         const start = atTime(date, fromMinutes(t));
         const end = atTime(date, fromMinutes(t + duration));
         const s = Date.parse(start);
@@ -125,7 +172,8 @@ export function availableSlots(input: AvailabilityInput): Slot[] {
   const order = [...perPro].sort((a, b) => a.bookedCount - b.bookedCount);
   const byStart = new Map<string, Slot>();
   for (const { slots } of order) {
-    for (const slot of slots) if (!byStart.has(slot.start)) byStart.set(slot.start, slot);
+    for (const slot of slots)
+      if (!byStart.has(slot.start)) byStart.set(slot.start, slot);
   }
   return [...byStart.values()].sort((a, b) => a.start.localeCompare(b.start));
 }

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { Order, OrderItem, Plan } from "@/domain/entities";
-import { applyClubBenefit, closeOrderProblem, orderTotals } from "@/domain/order";
+import {
+  applyClubBenefit,
+  closeOrderProblem,
+  orderTotals,
+} from "@/domain/order";
 
 const item = (over: Partial<OrderItem>): OrderItem => ({
   id: "it-1",
@@ -36,8 +40,19 @@ describe("orderTotals", () => {
       order({
         items: [
           item({ id: "a", clubCovered: true }),
-          item({ id: "b", refId: "svc-2", unitPriceCents: 3500, discountCents: 500 }),
-          item({ id: "c", kind: "product", refId: "prd-1", quantity: 2, unitPriceCents: 3000 }),
+          item({
+            id: "b",
+            refId: "svc-2",
+            unitPriceCents: 3500,
+            discountCents: 500,
+          }),
+          item({
+            id: "c",
+            kind: "product",
+            refId: "prd-1",
+            quantity: 2,
+            unitPriceCents: 3000,
+          }),
         ],
         discountCents: 1000,
       }),
@@ -50,19 +65,30 @@ describe("orderTotals", () => {
 
   it("calcula falta e troco só com dinheiro", () => {
     const base = order({ items: [item({})] });
-    expect(orderTotals({ ...base, payments: [{ method: "pix", amountCents: 2000 }] }).remainingCents).toBe(2500);
-    const cash = orderTotals({ ...base, payments: [{ method: "cash", amountCents: 5000 }] });
+    expect(
+      orderTotals({ ...base, payments: [{ method: "pix", amountCents: 2000 }] })
+        .remainingCents,
+    ).toBe(2500);
+    const cash = orderTotals({
+      ...base,
+      payments: [{ method: "cash", amountCents: 5000 }],
+    });
     expect(cash.remainingCents).toBe(0);
     expect(cash.changeCents).toBe(500);
   });
 
   it("desconto total não deixa o total negativo", () => {
-    expect(orderTotals(order({ items: [item({})], discountCents: 9999 })).totalCents).toBe(0);
+    expect(
+      orderTotals(order({ items: [item({})], discountCents: 9999 })).totalCents,
+    ).toBe(0);
   });
 });
 
 describe("closeOrderProblem", () => {
-  const paid = order({ items: [item({})], payments: [{ method: "pix", amountCents: 4500 }] });
+  const paid = order({
+    items: [item({})],
+    payments: [{ method: "pix", amountCents: 4500 }],
+  });
   it("aceita comanda paga com caixa aberto", () => {
     expect(closeOrderProblem(paid, true)).toBeNull();
   });
@@ -72,12 +98,17 @@ describe("closeOrderProblem", () => {
     expect(closeOrderProblem({ ...paid, payments: [] }, true)).toMatch(/Falta/);
   });
   it("não aceita pagar a mais sem dinheiro", () => {
-    expect(closeOrderProblem({ ...paid, payments: [{ method: "pix", amountCents: 5000 }] }, true)).toMatch(
-      /troco/i,
-    );
+    expect(
+      closeOrderProblem(
+        { ...paid, payments: [{ method: "pix", amountCents: 5000 }] },
+        true,
+      ),
+    ).toMatch(/troco/i);
   });
   it("não fecha comanda já fechada", () => {
-    expect(closeOrderProblem({ ...paid, status: "closed" }, true)).toMatch(/fechada/i);
+    expect(closeOrderProblem({ ...paid, status: "closed" }, true)).toMatch(
+      /fechada/i,
+    );
   });
 });
 

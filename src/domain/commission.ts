@@ -7,9 +7,15 @@
  */
 import type { Commission, OrderItem, Professional } from "@/domain/entities";
 
-type CommissionPro = Pick<Professional, "commissionOverrides" | "clubCommissionCents">;
+type CommissionPro = Pick<
+  Professional,
+  "commissionOverrides" | "clubCommissionCents"
+>;
 
-export type CommissionCalc = Pick<Commission, "kind" | "baseCents" | "pct" | "amountCents">;
+export type CommissionCalc = Pick<
+  Commission,
+  "kind" | "baseCents" | "pct" | "amountCents"
+>;
 
 export function itemTotalCents(item: OrderItem): number {
   if (item.clubCovered) return 0;
@@ -23,11 +29,18 @@ export function commissionForItem(
   catalogPct: number,
 ): CommissionCalc {
   if (item.kind === "service" && item.clubCovered) {
-    return { kind: "club", baseCents: 0, pct: null, amountCents: pro.clubCommissionCents };
+    return {
+      kind: "club",
+      baseCents: 0,
+      pct: null,
+      amountCents: pro.clubCommissionCents,
+    };
   }
   const baseCents = itemTotalCents(item);
   const pct =
-    item.kind === "service" ? (pro.commissionOverrides[item.refId] ?? catalogPct) : catalogPct;
+    item.kind === "service"
+      ? (pro.commissionOverrides[item.refId] ?? catalogPct)
+      : catalogPct;
   return {
     kind: item.kind,
     baseCents,
@@ -47,7 +60,9 @@ export type CommissionSummary = {
 };
 
 /** Resumo por barbeiro: serviços, produtos, Clube, total, pago e a pagar. */
-export function commissionSummary(commissions: Commission[]): CommissionSummary[] {
+export function commissionSummary(
+  commissions: Commission[],
+): CommissionSummary[] {
   const map = new Map<string, CommissionSummary>();
   for (const c of commissions) {
     const row = map.get(c.professionalId) ?? {

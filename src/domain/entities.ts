@@ -50,7 +50,11 @@ export const BarbershopSchema = z.object({
   hours: z.array(WeeklyHoursSchema),
   closures: z.array(z.object({ date: IsoDate, reason: z.string() })),
   booking: BookingRulesSchema,
-  messages: z.object({ confirmation: z.string(), reminder: z.string(), missYou: z.string() }),
+  messages: z.object({
+    confirmation: z.string(),
+    reminder: z.string(),
+    missYou: z.string(),
+  }),
 });
 export type Barbershop = z.infer<typeof BarbershopSchema>;
 
@@ -83,7 +87,13 @@ export const TimeOffSchema = z.object({
 });
 export type TimeOff = z.infer<typeof TimeOffSchema>;
 
-export const ServiceCategorySchema = z.enum(["corte", "barba", "combo", "tratamento", "outros"]);
+export const ServiceCategorySchema = z.enum([
+  "corte",
+  "barba",
+  "combo",
+  "tratamento",
+  "outros",
+]);
 export type ServiceCategory = z.infer<typeof ServiceCategorySchema>;
 
 export const ServiceSchema = z.object({
@@ -110,7 +120,13 @@ export const ProductSchema = z.object({
 });
 export type Product = z.infer<typeof ProductSchema>;
 
-export const ClientSourceSchema = z.enum(["instagram", "google", "indicacao", "passando", "outro"]);
+export const ClientSourceSchema = z.enum([
+  "instagram",
+  "google",
+  "indicacao",
+  "passando",
+  "outro",
+]);
 export type ClientSource = z.infer<typeof ClientSourceSchema>;
 
 export const ClientSchema = z.object({
@@ -186,7 +202,12 @@ export const PlanSchema = z.object({
 });
 export type Plan = z.infer<typeof PlanSchema>;
 
-export const SubscriptionStatusSchema = z.enum(["active", "past_due", "canceling", "canceled"]);
+export const SubscriptionStatusSchema = z.enum([
+  "active",
+  "past_due",
+  "canceling",
+  "canceled",
+]);
 export type SubscriptionStatus = z.infer<typeof SubscriptionStatusSchema>;
 
 export const SubscriptionSchema = z.object({
@@ -229,7 +250,10 @@ export const OrderItemSchema = z.object({
 });
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 
-export const PaymentSchema = z.object({ method: PaymentMethodSchema, amountCents: Cents });
+export const PaymentSchema = z.object({
+  method: PaymentMethodSchema,
+  amountCents: Cents,
+});
 export type Payment = z.infer<typeof PaymentSchema>;
 
 export const OrderSchema = z.object({

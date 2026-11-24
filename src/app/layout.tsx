@@ -20,7 +20,11 @@ export const metadata: Metadata = {
   description: "Barbearia Afiado: agende seu horário e conheça o Clube.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="pt-BR"

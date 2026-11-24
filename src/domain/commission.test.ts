@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { commissionForItem, commissionSummary, itemTotalCents } from "@/domain/commission";
+import {
+  commissionForItem,
+  commissionSummary,
+  itemTotalCents,
+} from "@/domain/commission";
 import type { OrderItem, Professional } from "@/domain/entities";
 
 const pro = {
@@ -7,7 +11,10 @@ const pro = {
   commissionPct: 40,
   commissionOverrides: { "svc-3": 50 },
   clubCommissionCents: 1500,
-} as Pick<Professional, "id" | "commissionPct" | "commissionOverrides" | "clubCommissionCents">;
+} as Pick<
+  Professional,
+  "id" | "commissionPct" | "commissionOverrides" | "clubCommissionCents"
+>;
 
 const item = (over: Partial<OrderItem>): OrderItem => ({
   id: "it-1",
@@ -24,7 +31,9 @@ const item = (over: Partial<OrderItem>): OrderItem => ({
 
 describe("commission", () => {
   it("total do item desconta e não fica negativo", () => {
-    expect(itemTotalCents(item({ quantity: 2, discountCents: 1000 }))).toBe(8000);
+    expect(itemTotalCents(item({ quantity: 2, discountCents: 1000 }))).toBe(
+      8000,
+    );
     expect(itemTotalCents(item({ discountCents: 9000 }))).toBe(0);
     expect(itemTotalCents(item({ clubCovered: true }))).toBe(0);
   });
@@ -39,7 +48,13 @@ describe("commission", () => {
   });
 
   it("exceção do barbeiro vence o % do serviço", () => {
-    expect(commissionForItem(item({ refId: "svc-3", unitPriceCents: 3500 }), pro, 40)).toEqual({
+    expect(
+      commissionForItem(
+        item({ refId: "svc-3", unitPriceCents: 3500 }),
+        pro,
+        40,
+      ),
+    ).toEqual({
       kind: "service",
       baseCents: 3500,
       pct: 50,
@@ -48,12 +63,19 @@ describe("commission", () => {
   });
 
   it("arredonda para o centavo", () => {
-    expect(commissionForItem(item({ unitPriceCents: 1555 }), pro, 33).amountCents).toBe(513);
+    expect(
+      commissionForItem(item({ unitPriceCents: 1555 }), pro, 33).amountCents,
+    ).toBe(513);
   });
 
   it("produto usa % do produto", () => {
-    expect(commissionForItem(item({ kind: "product", refId: "prd-1", unitPriceCents: 5000 }), pro, 10))
-      .toEqual({ kind: "product", baseCents: 5000, pct: 10, amountCents: 500 });
+    expect(
+      commissionForItem(
+        item({ kind: "product", refId: "prd-1", unitPriceCents: 5000 }),
+        pro,
+        10,
+      ),
+    ).toEqual({ kind: "product", baseCents: 5000, pct: 10, amountCents: 500 });
   });
 
   it("atendimento pelo Clube paga valor fixo", () => {
@@ -67,13 +89,47 @@ describe("commission", () => {
 });
 
 describe("commissionSummary", () => {
-  const base = { orderId: "o", orderItemId: "i", date: "2026-11-02T10:00:00-03:00", baseCents: 0, pct: null };
+  const base = {
+    orderId: "o",
+    orderItemId: "i",
+    date: "2026-11-02T10:00:00-03:00",
+    baseCents: 0,
+    pct: null,
+  };
   it("soma por tipo e separa pago de a pagar", () => {
     const rows = commissionSummary([
-      { ...base, id: "1", professionalId: "a", kind: "service", amountCents: 1800, paidAt: null },
-      { ...base, id: "2", professionalId: "a", kind: "product", amountCents: 500, paidAt: "2026-11-03T10:00:00-03:00" },
-      { ...base, id: "3", professionalId: "a", kind: "club", amountCents: 1500, paidAt: null },
-      { ...base, id: "4", professionalId: "b", kind: "service", amountCents: 1000, paidAt: null },
+      {
+        ...base,
+        id: "1",
+        professionalId: "a",
+        kind: "service",
+        amountCents: 1800,
+        paidAt: null,
+      },
+      {
+        ...base,
+        id: "2",
+        professionalId: "a",
+        kind: "product",
+        amountCents: 500,
+        paidAt: "2026-11-03T10:00:00-03:00",
+      },
+      {
+        ...base,
+        id: "3",
+        professionalId: "a",
+        kind: "club",
+        amountCents: 1500,
+        paidAt: null,
+      },
+      {
+        ...base,
+        id: "4",
+        professionalId: "b",
+        kind: "service",
+        amountCents: 1000,
+        paidAt: null,
+      },
     ]);
     expect(rows.find((r) => r.professionalId === "a")).toEqual({
       professionalId: "a",

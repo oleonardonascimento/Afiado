@@ -28,7 +28,17 @@ const order = (date: string, refId: string, clubCovered = true): Order => ({
   appointmentId: null,
   status: "closed",
   items: [
-    { id: "i", kind: "service", refId, name: "", quantity: 1, unitPriceCents: 3500, discountCents: 0, clubCovered, professionalId: "pro-1" },
+    {
+      id: "i",
+      kind: "service",
+      refId,
+      name: "",
+      quantity: 1,
+      unitPriceCents: 3500,
+      discountCents: 0,
+      clubCovered,
+      professionalId: "pro-1",
+    },
   ],
   discountCents: 0,
   payments: [],
@@ -41,10 +51,21 @@ describe("subscription", () => {
   it("assinatura ativa e cancelando valem até o fim do período", () => {
     const now = new Date("2026-11-20T12:00:00.000Z");
     expect(isSubscriptionActive(sub, now)).toBe(true);
-    expect(isSubscriptionActive({ ...sub, status: "canceling" }, now)).toBe(true);
-    expect(isSubscriptionActive({ ...sub, status: "canceling" }, new Date("2026-12-11T12:00:00.000Z"))).toBe(false);
-    expect(isSubscriptionActive({ ...sub, status: "past_due" }, now)).toBe(false);
-    expect(isSubscriptionActive({ ...sub, status: "canceled" }, now)).toBe(false);
+    expect(isSubscriptionActive({ ...sub, status: "canceling" }, now)).toBe(
+      true,
+    );
+    expect(
+      isSubscriptionActive(
+        { ...sub, status: "canceling" },
+        new Date("2026-12-11T12:00:00.000Z"),
+      ),
+    ).toBe(false);
+    expect(isSubscriptionActive({ ...sub, status: "past_due" }, now)).toBe(
+      false,
+    );
+    expect(isSubscriptionActive({ ...sub, status: "canceled" }, now)).toBe(
+      false,
+    );
   });
 
   it("conta o uso do período atual", () => {
@@ -60,9 +81,25 @@ describe("subscription", () => {
 
   it("cobre serviços do plano dentro do limite e do intervalo mínimo", () => {
     const usage = { byService: { "svc-3": 4 }, lastCoveredDate: "2026-11-15" };
-    expect(coveredServiceIds(plan2, usage, ["svc-1", "svc-3", "svc-7"], "2026-11-23")).toEqual(["svc-1"]);
-    expect(coveredServiceIds(plan2, usage, ["svc-1"], "2026-11-20")).toEqual([]); // < 7 dias
-    expect(coveredServiceIds(plan2, { byService: {}, lastCoveredDate: null }, ["svc-2"], "2026-11-23")).toEqual([]);
+    expect(
+      coveredServiceIds(
+        plan2,
+        usage,
+        ["svc-1", "svc-3", "svc-7"],
+        "2026-11-23",
+      ),
+    ).toEqual(["svc-1"]);
+    expect(coveredServiceIds(plan2, usage, ["svc-1"], "2026-11-20")).toEqual(
+      [],
+    ); // < 7 dias
+    expect(
+      coveredServiceIds(
+        plan2,
+        { byService: {}, lastCoveredDate: null },
+        ["svc-2"],
+        "2026-11-23",
+      ),
+    ).toEqual([]);
   });
 
   it("totais somam duração e separam o que sai pelo Clube", () => {

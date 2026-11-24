@@ -3,13 +3,27 @@
  * na V2 o backend pode calcular as mesmas coisas.
  */
 import { workMinutes } from "@/domain/availability";
-import type { Appointment, Barbershop, Client, Order, Plan, Product, Professional, Subscription } from "@/domain/entities";
+import type {
+  Appointment,
+  Barbershop,
+  Client,
+  Order,
+  Plan,
+  Product,
+  Professional,
+  Subscription,
+} from "@/domain/entities";
 import { orderTotals } from "@/domain/order";
 import { dateOf, diffDays } from "@/lib/calendar";
 
-const closed = (orders: Order[]) => orders.filter((o) => o.status === "closed" && o.closedAt);
+const closed = (orders: Order[]) =>
+  orders.filter((o) => o.status === "closed" && o.closedAt);
 
-export function revenueBetween(orders: Order[], fromIso: string, toIso: string): number {
+export function revenueBetween(
+  orders: Order[],
+  fromIso: string,
+  toIso: string,
+): number {
   const from = Date.parse(fromIso);
   const to = Date.parse(toIso);
   return closed(orders)
@@ -20,11 +34,15 @@ export function revenueBetween(orders: Order[], fromIso: string, toIso: string):
     .reduce((sum, o) => sum + orderTotals(o).totalCents, 0);
 }
 
-export function revenueByDay(orders: Order[], dates: string[]): { date: string; cents: number }[] {
+export function revenueByDay(
+  orders: Order[],
+  dates: string[],
+): { date: string; cents: number }[] {
   const byDate = new Map(dates.map((d) => [d, 0]));
   for (const o of closed(orders)) {
     const day = dateOf(o.closedAt as string);
-    if (byDate.has(day)) byDate.set(day, (byDate.get(day) ?? 0) + orderTotals(o).totalCents);
+    if (byDate.has(day))
+      byDate.set(day, (byDate.get(day) ?? 0) + orderTotals(o).totalCents);
   }
   return dates.map((date) => ({ date, cents: byDate.get(date) ?? 0 }));
 }
@@ -34,11 +52,16 @@ export function averageTicketCents(orders: Order[]): number {
   const totals = closed(orders)
     .map((o) => orderTotals(o).totalCents)
     .filter((t) => t > 0);
-  return totals.length === 0 ? 0 : Math.round(totals.reduce((a, b) => a + b, 0) / totals.length);
+  return totals.length === 0
+    ? 0
+    : Math.round(totals.reduce((a, b) => a + b, 0) / totals.length);
 }
 
 /** Variação % de `current` sobre `previous`; null quando não há base. */
-export function percentChange(current: number, previous: number): number | null {
+export function percentChange(
+  current: number,
+  previous: number,
+): number | null {
   if (previous === 0) return null;
   return Math.round(((current - previous) / previous) * 100);
 }
@@ -46,11 +69,18 @@ export function percentChange(current: number, previous: number): number | null 
 export function mrrCents(subscriptions: Subscription[], plans: Plan[]): number {
   return subscriptions
     .filter((s) => s.status === "active" || s.status === "canceling")
-    .reduce((sum, s) => sum + (plans.find((p) => p.id === s.planId)?.priceCents ?? 0), 0);
+    .reduce(
+      (sum, s) => sum + (plans.find((p) => p.id === s.planId)?.priceCents ?? 0),
+      0,
+    );
 }
 
 /** Aniversariantes entre duas datas (inclusive), comparando só mês e dia. */
-export function birthdaysBetween(clients: Client[], from: string, to: string): Client[] {
+export function birthdaysBetween(
+  clients: Client[],
+  from: string,
+  to: string,
+): Client[] {
   const a = from.slice(5);
   const b = to.slice(5);
   const wraps = a > b;
@@ -93,17 +123,31 @@ export function lapsedClients(
 }
 
 export function lowStock(products: Product[]): Product[] {
-  return products.filter((p) => p.active && p.stock <= p.minStock).sort((a, b) => a.stock - b.stock);
+  return products
+    .filter((p) => p.active && p.stock <= p.minStock)
+    .sort((a, b) => a.stock - b.stock);
 }
 
 /** Soma `value` por `key`, do maior para o menor. */
-export function groupSum<T>(rows: T[], key: (row: T) => string, value: (row: T) => number) {
+export function groupSum<T>(
+  rows: T[],
+  key: (row: T) => string,
+  value: (row: T) => number,
+) {
   const map = new Map<string, number>();
-  for (const row of rows) map.set(key(row), (map.get(key(row)) ?? 0) + value(row));
-  return [...map.entries()].map(([k, total]) => ({ key: k, total })).sort((a, b) => b.total - a.total);
+  for (const row of rows)
+    map.set(key(row), (map.get(key(row)) ?? 0) + value(row));
+  return [...map.entries()]
+    .map(([k, total]) => ({ key: k, total }))
+    .sort((a, b) => b.total - a.total);
 }
 
-const BUSY: Appointment["status"][] = ["scheduled", "confirmed", "in_service", "done"];
+const BUSY: Appointment["status"][] = [
+  "scheduled",
+  "confirmed",
+  "in_service",
+  "done",
+];
 
 /** Ocupação % por barbeiro nas datas: minutos agendados ÷ minutos de trabalho. */
 export function occupancyByProfessional(
@@ -116,33 +160,63 @@ export function occupancyByProfessional(
   return professionals
     .filter((p) => p.active && p.serviceIds.length > 0)
     .map((pro) => {
-      const available = dates.reduce((sum, d) => sum + workMinutes(shop, pro, d), 0);
+      const available = dates.reduce(
+        (sum, d) => sum + workMinutes(shop, pro, d),
+        0,
+      );
       const booked = appointments
-        .filter((a) => a.professionalId === pro.id && BUSY.includes(a.status) && days.has(dateOf(a.start)))
-        .reduce((sum, a) => sum + (Date.parse(a.end) - Date.parse(a.start)) / 60_000, 0);
+        .filter(
+          (a) =>
+            a.professionalId === pro.id &&
+            BUSY.includes(a.status) &&
+            days.has(dateOf(a.start)),
+        )
+        .reduce(
+          (sum, a) => sum + (Date.parse(a.end) - Date.parse(a.start)) / 60_000,
+          0,
+        );
       return {
         professionalId: pro.id,
         name: pro.name,
-        pct: available === 0 ? 0 : Math.min(100, Math.round((booked / available) * 100)),
+        pct:
+          available === 0
+            ? 0
+            : Math.min(100, Math.round((booked / available) * 100)),
       };
     });
 }
 
 /** Indicadores do Clube: ativos (inclui "cancelando"), MRR, novos e cancelados no mês, inadimplentes. */
-export function clubIndicators(subscriptions: Subscription[], plans: Plan[], monthStartIso: string) {
+export function clubIndicators(
+  subscriptions: Subscription[],
+  plans: Plan[],
+  monthStartIso: string,
+) {
   return {
-    active: subscriptions.filter((s) => s.status === "active" || s.status === "canceling").length,
+    active: subscriptions.filter(
+      (s) => s.status === "active" || s.status === "canceling",
+    ).length,
     mrrCents: mrrCents(subscriptions, plans),
-    newThisMonth: subscriptions.filter((s) => s.startedAt >= monthStartIso).length,
-    canceledThisMonth: subscriptions.filter((s) => s.canceledAt !== null && s.canceledAt >= monthStartIso).length,
+    newThisMonth: subscriptions.filter((s) => s.startedAt >= monthStartIso)
+      .length,
+    canceledThisMonth: subscriptions.filter(
+      (s) => s.canceledAt !== null && s.canceledAt >= monthStartIso,
+    ).length,
     pastDue: subscriptions.filter((s) => s.status === "past_due").length,
   };
 }
 
-export type ClientStats = { visits: number; lastVisit: string | null; spentCents: number };
+export type ClientStats = {
+  visits: number;
+  lastVisit: string | null;
+  spentCents: number;
+};
 
 /** Por cliente: atendimentos concluídos, data da última visita e total pago em comandas fechadas. */
-export function clientStats(appointments: Appointment[], orders: Order[]): Map<string, ClientStats> {
+export function clientStats(
+  appointments: Appointment[],
+  orders: Order[],
+): Map<string, ClientStats> {
   const map = new Map<string, ClientStats>();
   const get = (id: string) => {
     let entry = map.get(id);

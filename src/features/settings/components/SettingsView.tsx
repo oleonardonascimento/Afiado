@@ -108,7 +108,10 @@ function DemoReset() {
           </AlertDialogDescription>
           <AlertDialogFooter>
             <AlertDialogCancel>Manter meus dados</AlertDialogCancel>
-            <AlertDialogAction onClick={() => reset.mutate()}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => reset.mutate()}
+            >
               Restaurar dados
             </AlertDialogAction>
           </AlertDialogFooter>

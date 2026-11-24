@@ -20,7 +20,9 @@ export type OrderTotals = {
   changeCents: number;
 };
 
-export function orderTotals(order: Pick<Order, "items" | "discountCents" | "payments">): OrderTotals {
+export function orderTotals(
+  order: Pick<Order, "items" | "discountCents" | "payments">,
+): OrderTotals {
   let grossCents = 0;
   let clubCents = 0;
   let itemDiscountCents = 0;
@@ -35,7 +37,9 @@ export function orderTotals(order: Pick<Order, "items" | "discountCents" | "paym
   const orderDiscountCents = Math.min(order.discountCents, itemsCents);
   const totalCents = itemsCents - orderDiscountCents;
   const paidCents = order.payments.reduce((sum, p) => sum + p.amountCents, 0);
-  const cashCents = order.payments.filter((p) => p.method === "cash").reduce((s, p) => s + p.amountCents, 0);
+  const cashCents = order.payments
+    .filter((p) => p.method === "cash")
+    .reduce((s, p) => s + p.amountCents, 0);
   const over = Math.max(0, paidCents - totalCents);
   return {
     grossCents,
@@ -50,12 +54,17 @@ export function orderTotals(order: Pick<Order, "items" | "discountCents" | "paym
 }
 
 /** Motivo que impede fechar a comanda, em pt-BR; null quando pode fechar. */
-export function closeOrderProblem(order: Order, cashOpen: boolean): string | null {
+export function closeOrderProblem(
+  order: Order,
+  cashOpen: boolean,
+): string | null {
   if (order.status !== "open") return "Esta comanda já está fechada.";
-  if (!cashOpen) return "O caixa está fechado. Abra o caixa para fechar comandas.";
+  if (!cashOpen)
+    return "O caixa está fechado. Abra o caixa para fechar comandas.";
   if (order.items.length === 0) return "Adicione pelo menos um item à comanda.";
   const t = orderTotals(order);
-  if (t.remainingCents > 0) return `Falta receber ${formatBRL(t.remainingCents)}.`;
+  if (t.remainingCents > 0)
+    return `Falta receber ${formatBRL(t.remainingCents)}.`;
   if (t.paidCents - t.totalCents > t.changeCents) {
     return "O valor pago passa do total e só pagamento em dinheiro gera troco. Ajuste os valores.";
   }
@@ -63,12 +72,23 @@ export function closeOrderProblem(order: Order, cashOpen: boolean): string | nul
 }
 
 /** Marca como cobertos pelo Clube os serviços que o plano cobre hoje (1 de cada). */
-export function applyClubBenefit(items: OrderItem[], plan: Plan, usage: PlanUsage, date: string): OrderItem[] {
-  const serviceIds = items.filter((i) => i.kind === "service").map((i) => i.refId);
+export function applyClubBenefit(
+  items: OrderItem[],
+  plan: Plan,
+  usage: PlanUsage,
+  date: string,
+): OrderItem[] {
+  const serviceIds = items
+    .filter((i) => i.kind === "service")
+    .map((i) => i.refId);
   const covered = new Set(coveredServiceIds(plan, usage, serviceIds, date));
   return items.map((item) => {
     const hit = item.kind === "service" && covered.has(item.refId);
     if (hit) covered.delete(item.refId);
-    return { ...item, clubCovered: hit, discountCents: hit ? 0 : item.discountCents };
+    return {
+      ...item,
+      clubCovered: hit,
+      discountCents: hit ? 0 : item.discountCents,
+    };
   });
 }
