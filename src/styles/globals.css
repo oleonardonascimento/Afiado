@@ -1,0 +1,203 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Tokens de design — direção "Poste de barbeiro" (PRD §8).
+ * Único lugar do projeto com valores de cor, sombra e raio.
+ */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-2: #e9edf2;
+  --border: #d3dae3;
+  --border-strong: #7a8699;
+  --text: #0e1726;
+  --text-muted: #4a5568;
+  --primary: #14213d;
+  --primary-fg: #ffffff;
+  --brand: #c42a2a;
+  --brand-fg: #ffffff;
+  --club: #dce8f5;
+  --club-fg: #14213d;
+  --success: #1e7a46;
+  --warning: #9a5207;
+  --danger: #b42318;
+  --info: #2b5a8c;
+  --focus-ring: #2b5a8c;
+  --shadow-float-value: 0 8px 24px rgb(14 23 38 / 0.14), 0 2px 6px rgb(14 23 38 / 0.08);
+  --pole-stripe: repeating-linear-gradient(
+    135deg,
+    var(--brand) 0 10px,
+    var(--bg) 10px 20px,
+    var(--primary) 20px 30px,
+    var(--bg) 30px 40px
+  );
+}
+
+.dark {
+  --bg: #0b1220;
+  --surface: #131c2e;
+  --surface-2: #1c2740;
+  --border: #2a3754;
+  --border-strong: #5b6b88;
+  --text: #eef2f7;
+  --text-muted: #a3aec2;
+  --primary: #a9c6e8;
+  --primary-fg: #0e1726;
+  --brand: #c42a2a;
+  --brand-fg: #ffffff;
+  --club: #1c2f4d;
+  --club-fg: #a9c6e8;
+  --success: #4cc38a;
+  --warning: #f0a84a;
+  --danger: #f07070;
+  --info: #8db4e2;
+  --focus-ring: #8db4e2;
+  --shadow-float-value: 0 8px 24px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
+}
+
+/* Aliases usados pelos primitivos do shadcn — sempre apontam para os tokens acima. */
+:root,
+.dark {
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary-foreground: var(--primary-fg);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--text);
+  --destructive: var(--danger);
+  --input: var(--border-strong);
+  --ring: var(--focus-ring);
+  --radius: 6px;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-club: var(--club);
+  --color-club-fg: var(--club-fg);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-focus: var(--focus-ring);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-shoulders), var(--font-instrument), sans-serif;
+  --font-heading: var(--font-display);
+  --tracking-display: 0.01em;
+  --leading-display: 0.95;
+
+  /* Escala tipográfica (PRD §8.1): 12 14 16 18 20 24 30 40 56 72 */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 0.95;
+  --text-5xl: 3.5rem;
+  --text-5xl--line-height: 0.95;
+  --text-6xl: 4.5rem;
+  --text-6xl--line-height: 0.95;
+
+  /* Raios: 6px controles, 10px cards, 999px avatar/selo */
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --radius-xs: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-3xl: 10px;
+  --radius-4xl: 10px;
+
+  /* Sombra só em elementos flutuantes */
+  --shadow-float: var(--shadow-float-value);
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: var(--shadow-float-value);
+  --shadow-lg: var(--shadow-float-value);
+  --shadow-xl: var(--shadow-float-value);
+  --shadow-2xl: var(--shadow-float-value);
+
+  --animate-pole: pole-spin 600ms linear;
+
+  @keyframes pole-spin {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 56.57px 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-bg text-text antialiased;
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility pole-stripe {
+  background-image: var(--pole-stripe);
+}

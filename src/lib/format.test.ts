@@ -1,0 +1,21 @@
+import { describe, expect, it } from "vitest";
+import { formatBRL, formatDate, formatPhone, formatTime, formatWeekday } from "@/lib/format";
+
+describe("format", () => {
+  it("formata moeda em centavos", () => {
+    expect(formatBRL(4500)).toBe("R$ 45,00");
+    expect(formatBRL(0)).toBe("R$ 0,00");
+    expect(formatBRL(123456)).toBe("R$ 1.234,56");
+  });
+
+  it("formata data e hora no fuso de São Paulo", () => {
+    expect(formatTime("2026-11-27T17:00:00.000Z")).toBe("14:00");
+    expect(formatDate("2026-11-27T02:30:00.000Z")).toBe("26/11");
+    expect(formatWeekday("2026-11-27T15:00:00.000Z")).toBe("sexta-feira");
+  });
+
+  it("formata telefone BR", () => {
+    expect(formatPhone("61999998888")).toBe("(61) 99999-8888");
+    expect(formatPhone("6133334444")).toBe("(61) 3333-4444");
+  });
+});
