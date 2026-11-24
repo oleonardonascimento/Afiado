@@ -41,6 +41,11 @@ export function diffDays(a: string, b: string): number {
   return Math.round((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 86_400_000);
 }
 
+/** Meio-dia (SP) da data, para formatar dias sem risco de virar o dia por fuso. */
+export function middayIso(date: string): string {
+  return `${date}T15:00:00.000Z`;
+}
+
 /** Instante (ISO UTC) de uma data + hora no fuso da barbearia. */
 export function atTime(date: string, hhmm: string): string {
   return fromZonedTime(`${date}T${hhmm}:00`, TZ).toISOString();

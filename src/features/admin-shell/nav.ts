@@ -45,12 +45,6 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings, roles: OWNER, mobile: false },
 ];
 
-export const ROLE_LABEL: Record<StaffRole, string> = {
-  owner: "Dono",
-  barber: "Barbeiro",
-  reception: "Recepção",
-};
-
 export function navForRole(role: StaffRole): AdminNavItem[] {
   return ADMIN_NAV.filter((item) => item.roles.includes(role));
 }

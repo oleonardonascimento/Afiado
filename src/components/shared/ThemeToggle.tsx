@@ -16,7 +16,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label={isDark ? "Usar tema claro" : "Usar tema escuro"}
+      aria-label="Alternar tema claro ou escuro"
     >
       <Sun className="hidden dark:block" strokeWidth={1.75} aria-hidden />
       <Moon className="dark:hidden" strokeWidth={1.75} aria-hidden />

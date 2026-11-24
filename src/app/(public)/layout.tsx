@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/shared/Logo";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
-import { Button } from "@/components/ui/button";
+import { AccountLink } from "@/features/auth/components/AccountLink";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,9 +13,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           </Link>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/entrar">Entrar</Link>
-            </Button>
+            <AccountLink />
           </div>
         </div>
       </header>

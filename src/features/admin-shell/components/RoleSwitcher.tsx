@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StaffRoleSchema } from "@/domain/entities";
-import { ROLE_LABEL } from "@/features/admin-shell/nav";
+import { ROLE_LABEL } from "@/lib/labels";
 import { useResetDemo } from "@/features/demo/hooks/useResetDemo";
 import { useStaffRole, useUpdateSession } from "@/hooks/useSession";
 

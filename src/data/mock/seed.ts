@@ -277,7 +277,7 @@ function makeAgenda(ctx: Ctx) {
       for (const range of ranges) {
         let cursor = toMinutes(range.start);
         const end = toMinutes(range.end);
-        const p = offset < 0 ? 0.36 : Math.max(0.2, 0.42 - offset * 0.015);
+        const p = offset < 0 ? 0.36 : Math.max(0.08, 0.3 - offset * 0.02);
         while (cursor < end) {
           if (!rng.chance(p)) {
             cursor += 15;
