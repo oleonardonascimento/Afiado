@@ -62,7 +62,9 @@ export function durationLabel(minutes: number): string {
 
 export function initials(name: string): string {
   const parts = name.trim().split(/\s+/);
-  return ((parts[0]?.[0] ?? "") + (parts.length > 1 ? (parts.at(-1)?.[0] ?? "") : "")).toUpperCase();
+  return (
+    (parts[0]?.[0] ?? "") + (parts.length > 1 ? (parts.at(-1)?.[0] ?? "") : "")
+  ).toUpperCase();
 }
 
 /** Primeira letra maiúscula, resto como está ("terça-feira" → "Terça-feira"). */
@@ -75,8 +77,13 @@ export function firstName(name: string): string {
 }
 
 /** "Corte à vontade" ou "4× Barba por mês". */
-export function benefitLabel(serviceName: string, monthlyLimit: number | null): string {
-  return monthlyLimit === null ? `${serviceName} à vontade` : `${monthlyLimit}× ${serviceName} por mês`;
+export function benefitLabel(
+  serviceName: string,
+  monthlyLimit: number | null,
+): string {
+  return monthlyLimit === null
+    ? `${serviceName} à vontade`
+    : `${monthlyLimit}× ${serviceName} por mês`;
 }
 
 /** Status curto para tabelas e filtros. */

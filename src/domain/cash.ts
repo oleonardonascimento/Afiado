@@ -32,12 +32,19 @@ export function cashExpected(
 export function cashDifference(
   expected: ByMethod,
   counted: ByMethod,
-): { byMethod: ByMethod; totalCents: number } {
+): {
+  byMethod: ByMethod;
+  totalCents: number;
+  mismatched: PaymentMethod[];
+  matches: boolean;
+} {
   const byMethod = emptyByMethod();
   let totalCents = 0;
   for (const method of PAYMENT_METHODS) {
     byMethod[method] = counted[method] - expected[method];
     totalCents += byMethod[method];
   }
-  return { byMethod, totalCents };
+  // Confere só se cada forma bate: sobra no Pix não compensa falta na gaveta.
+  const mismatched = PAYMENT_METHODS.filter((m) => byMethod[m] !== 0);
+  return { byMethod, totalCents, mismatched, matches: mismatched.length === 0 };
 }

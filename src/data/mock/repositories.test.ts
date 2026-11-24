@@ -37,8 +37,16 @@ function seedWithData(): DbSnapshot {
     createdAt: "2026-01-01T12:00:00.000Z",
   });
   db.appointments.push(
-    appointment({ id: "apt-1", start: "2026-11-27T11:45:00.000Z", end: "2026-11-27T12:15:00.000Z" }),
-    appointment({ id: "apt-2", start: "2026-11-27T14:00:00.000Z", end: "2026-11-27T14:30:00.000Z" }),
+    appointment({
+      id: "apt-1",
+      start: "2026-11-27T11:45:00.000Z",
+      end: "2026-11-27T12:15:00.000Z",
+    }),
+    appointment({
+      id: "apt-2",
+      start: "2026-11-27T14:00:00.000Z",
+      end: "2026-11-27T14:30:00.000Z",
+    }),
     appointment({ id: "apt-3", professionalId: "pro-2" }),
   );
   return db;
@@ -47,7 +55,9 @@ function seedWithData(): DbSnapshot {
 let repos: Repositories;
 
 beforeEach(() => {
-  repos = createMockRepositories(createStore({ storage: null, seed: seedWithData, latency: [0, 0] }));
+  repos = createMockRepositories(
+    createStore({ storage: null, seed: seedWithData, latency: [0, 0] }),
+  );
 });
 
 describe("mock repositories", () => {
@@ -64,17 +74,22 @@ describe("mock repositories", () => {
     const a = await repos.services.create(input);
     const b = await repos.services.create(input);
     expect(a.id).not.toBe(b.id);
-    expect((await repos.services.list()).map((s) => s.id)).toEqual([a.id, b.id]);
+    expect((await repos.services.list()).map((s) => s.id)).toEqual([
+      a.id,
+      b.id,
+    ]);
   });
 
   it("update de id inexistente rejeita com NotFoundError", async () => {
-    await expect(repos.services.update("nao-existe", { name: "X" })).rejects.toBeInstanceOf(
-      NotFoundError,
-    );
+    await expect(
+      repos.services.update("nao-existe", { name: "X" }),
+    ).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("findByPhone normaliza antes de buscar", async () => {
-    expect((await repos.clients.findByPhone("(61) 99999-8888"))?.id).toBe("cli-1");
+    expect((await repos.clients.findByPhone("(61) 99999-8888"))?.id).toBe(
+      "cli-1",
+    );
     expect(await repos.clients.findByPhone("61 98888-7777")).toBeNull();
   });
 

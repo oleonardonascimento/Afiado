@@ -51,3 +51,19 @@ describe("cash", () => {
     expect(diff.totalCents).toBe(-100);
   });
 });
+
+describe("cashDifference por forma", () => {
+  it("não confere quando as formas se compensam no total", () => {
+    const expected = { cash: 30000, pix: 20000, debit: 0, credit: 0 };
+    const diff = cashDifference(expected, {
+      cash: 25000,
+      pix: 25000,
+      debit: 0,
+      credit: 0,
+    });
+    expect(diff.totalCents).toBe(0);
+    expect(diff.matches).toBe(false);
+    expect(diff.mismatched).toEqual(["cash", "pix"]);
+    expect(cashDifference(expected, expected).matches).toBe(true);
+  });
+});

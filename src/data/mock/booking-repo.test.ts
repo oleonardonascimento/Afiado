@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { InvalidCodeError, SlotTakenError, type Repositories } from "@/data/repositories";
+import {
+  InvalidCodeError,
+  SlotTakenError,
+  type Repositories,
+} from "@/data/repositories";
 import { createEmptySnapshot } from "@/data/mock/empty-snapshot";
 import { createMockRepositories } from "@/data/mock/repositories";
 import { professionals, services, shop } from "@/data/mock/seed-catalog";
@@ -41,7 +45,9 @@ beforeEach(() => {
     });
     return db;
   };
-  repos = createMockRepositories(createStore({ storage: null, seed, latency: [0, 0] }));
+  repos = createMockRepositories(
+    createStore({ storage: null, seed, latency: [0, 0] }),
+  );
 });
 
 afterEach(() => {
@@ -68,12 +74,17 @@ describe("agendamento no mock", () => {
 
   it("book recusa horário ocupado", async () => {
     await repos.appointments.book(request);
-    await expect(repos.appointments.book(request)).rejects.toBeInstanceOf(SlotTakenError);
+    await expect(repos.appointments.book(request)).rejects.toBeInstanceOf(
+      SlotTakenError,
+    );
   });
 
   it("qualquer disponível escolhe um barbeiro livre", async () => {
     await repos.appointments.book(request);
-    const other = await repos.appointments.book({ ...request, professionalId: null });
+    const other = await repos.appointments.book({
+      ...request,
+      professionalId: null,
+    });
     expect(other.professionalId).not.toBe("pro-3");
   });
 
@@ -99,7 +110,8 @@ describe("agendamento no mock", () => {
 
 describe("auth no mock", () => {
   it("cliente existente entra com o código exibido", async () => {
-    const { code, isNewClient } = await repos.auth.requestCode("(61) 99999-8888");
+    const { code, isNewClient } =
+      await repos.auth.requestCode("(61) 99999-8888");
     expect(isNewClient).toBe(false);
     expect(code).toMatch(/^\d{4}$/);
     const client = await repos.auth.verifyCode({ phone: "61999998888", code });
@@ -109,9 +121,9 @@ describe("auth no mock", () => {
 
   it("código errado é recusado", async () => {
     await repos.auth.requestCode("61999998888");
-    await expect(repos.auth.verifyCode({ phone: "61999998888", code: "0000x" })).rejects.toBeInstanceOf(
-      InvalidCodeError,
-    );
+    await expect(
+      repos.auth.verifyCode({ phone: "61999998888", code: "0000x" }),
+    ).rejects.toBeInstanceOf(InvalidCodeError);
   });
 
   it("cliente novo é criado com o perfil", async () => {
@@ -120,7 +132,11 @@ describe("auth no mock", () => {
     const client = await repos.auth.verifyCode({
       phone: "61988887777",
       code,
-      profile: { name: "Bruno Lima", source: "instagram", marketingConsent: true },
+      profile: {
+        name: "Bruno Lima",
+        source: "instagram",
+        marketingConsent: true,
+      },
     });
     expect(client.name).toBe("Bruno Lima");
     expect(client.source).toBe("instagram");

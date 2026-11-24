@@ -1,6 +1,14 @@
-import { NotFoundError, type Collection, type Repositories } from "@/data/repositories";
+import {
+  NotFoundError,
+  type Collection,
+  type Repositories,
+} from "@/data/repositories";
 import { createMockAuth } from "@/data/mock/auth";
-import { bookAppointment, cancelAppointment, rescheduleAppointment } from "@/data/mock/booking";
+import {
+  bookAppointment,
+  cancelAppointment,
+  rescheduleAppointment,
+} from "@/data/mock/booking";
 import {
   addCashMovement,
   cancelOrder,
@@ -104,7 +112,9 @@ export function createMockRepositories(store: MockStore): Repositories {
       async findByPhone(phone) {
         await store.delay();
         const digits = normalizePhone(phone);
-        return clone(store.read().clients.find((c) => c.phone === digits) ?? null);
+        return clone(
+          store.read().clients.find((c) => c.phone === digits) ?? null,
+        );
       },
     },
     appointments: {
@@ -126,7 +136,9 @@ export function createMockRepositories(store: MockStore): Repositories {
       },
       async listByClient(clientId) {
         await store.delay();
-        return clone(store.read().appointments.filter((a) => a.clientId === clientId));
+        return clone(
+          store.read().appointments.filter((a) => a.clientId === clientId),
+        );
       },
       async book(request) {
         await store.delay();
@@ -151,15 +163,19 @@ export function createMockRepositories(store: MockStore): Repositories {
     charges: collection("charges"),
     orders: {
       ...orders,
-      openFromAppointment: (id) => run(() => openOrderFromAppointment(store, id)),
-      openWalkIn: ({ clientId, professionalId }) => run(() => openWalkInOrder(store, clientId, professionalId)),
+      openFromAppointment: (id) =>
+        run(() => openOrderFromAppointment(store, id)),
+      openWalkIn: ({ clientId, professionalId }) =>
+        run(() => openWalkInOrder(store, clientId, professionalId)),
       close: (id, payments) => run(() => closeOrder(store, id, payments)),
       cancel: (id) => run(() => cancelOrder(store, id)),
     },
     cash: {
-      open: (openingCents, staffId) => run(() => openCash(store, openingCents, staffId)),
+      open: (openingCents, staffId) =>
+        run(() => openCash(store, openingCents, staffId)),
       addMovement: (input) => run(() => addCashMovement(store, input)),
-      close: (id, counted, note) => run(() => closeCash(store, id, counted, note)),
+      close: (id, counted, note) =>
+        run(() => closeCash(store, id, counted, note)),
     },
     cashSessions: collection("cashSessions"),
     cashMovements: collection("cashMovements"),

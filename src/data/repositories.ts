@@ -97,18 +97,30 @@ export type Collection<T extends { id: string }, TCreate = Omit<T, "id">> = {
 };
 
 export type Repositories = {
-  shop: { get(): Promise<Barbershop>; update(patch: Partial<Barbershop>): Promise<Barbershop> };
+  shop: {
+    get(): Promise<Barbershop>;
+    update(patch: Partial<Barbershop>): Promise<Barbershop>;
+  };
   professionals: Collection<Professional>;
   timeOff: Collection<TimeOff>;
   services: Collection<Service>;
   products: Collection<Product>;
-  clients: Collection<Client> & { findByPhone(phone: string): Promise<Client | null> };
+  clients: Collection<Client> & {
+    findByPhone(phone: string): Promise<Client | null>;
+  };
   appointments: Collection<Appointment> & {
-    listByRange(fromIso: string, toIso: string, professionalId?: string): Promise<Appointment[]>;
+    listByRange(
+      fromIso: string,
+      toIso: string,
+      professionalId?: string,
+    ): Promise<Appointment[]>;
     listByClient(clientId: string): Promise<Appointment[]>;
     /** Valida que o horário ainda está livre; lança SlotTakenError. */
     book(request: BookingRequest): Promise<Appointment>;
-    reschedule(id: string, change: { start: string; professionalId: string | null }): Promise<Appointment>;
+    reschedule(
+      id: string,
+      change: { start: string; professionalId: string | null },
+    ): Promise<Appointment>;
     /** Cancela e avisa a lista de espera do dia (RF-08). */
     cancel(id: string): Promise<Appointment>;
   };
@@ -116,7 +128,11 @@ export type Repositories = {
   plans: Collection<Plan>;
   subscriptions: Collection<Subscription> & {
     /** Simula a 1ª cobrança aprovada. Recusa se o cliente já tem assinatura vigente. */
-    subscribe(input: { clientId: string; planId: string; paymentMethod: "pix" | "card" }): Promise<Subscription>;
+    subscribe(input: {
+      clientId: string;
+      planId: string;
+      paymentMethod: "pix" | "card";
+    }): Promise<Subscription>;
     /** Benefício continua até o fim do período pago (status "canceling"). */
     cancel(id: string): Promise<Subscription>;
   };
@@ -125,7 +141,10 @@ export type Repositories = {
     /** Conclui o atendimento e abre (ou devolve) a comanda dele, já com o benefício do Clube. */
     openFromAppointment(appointmentId: string): Promise<Order>;
     /** Comanda avulsa (sem agendamento). */
-    openWalkIn(input: { clientId: string | null; professionalId: string }): Promise<Order>;
+    openWalkIn(input: {
+      clientId: string | null;
+      professionalId: string;
+    }): Promise<Order>;
     /** Valida, registra no caixa aberto, gera comissões e baixa estoque. */
     close(id: string, payments: Payment[]): Promise<Order>;
     cancel(id: string): Promise<Order>;
@@ -133,11 +152,17 @@ export type Repositories = {
   cash: {
     open(openingCents: number, staffId: string): Promise<CashSession>;
     addMovement(input: NewMovement): Promise<CashMovement>;
-    close(id: string, counted: Record<PaymentMethod, number>, note: string): Promise<CashSession>;
+    close(
+      id: string,
+      counted: Record<PaymentMethod, number>,
+      note: string,
+    ): Promise<CashSession>;
   };
   cashSessions: Collection<CashSession>;
   cashMovements: Collection<CashMovement>;
-  commissions: Collection<Commission> & { markPaid(ids: string[]): Promise<void> };
+  commissions: Collection<Commission> & {
+    markPaid(ids: string[]): Promise<void>;
+  };
   reviews: Collection<Review>;
   auth: {
     /** V1: o código é simulado e devolvido para ser exibido na tela. */
@@ -145,6 +170,9 @@ export type Repositories = {
     verifyCode(request: SignInRequest): Promise<Client>;
     signOut(): Promise<void>;
   };
-  session: { get(): Promise<Session>; set(patch: Partial<Session>): Promise<Session> };
+  session: {
+    get(): Promise<Session>;
+    set(patch: Partial<Session>): Promise<Session>;
+  };
   demo: { reset(): Promise<void> };
 };

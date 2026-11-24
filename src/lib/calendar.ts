@@ -27,7 +27,9 @@ export function addDays(date: string, days: number): string {
 export function addMonths(date: string, months: number): string {
   const [y, m, d] = date.split("-").map(Number) as [number, number, number];
   const target = new Date(Date.UTC(y, m - 1 + months, 1, 12));
-  const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0, 12)).getUTCDate();
+  const lastDay = new Date(
+    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0, 12),
+  ).getUTCDate();
   target.setUTCDate(Math.min(d, lastDay));
   return target.toISOString().slice(0, 10);
 }
@@ -38,7 +40,9 @@ export function weekdayOf(date: string): number {
 }
 
 export function diffDays(a: string, b: string): number {
-  return Math.round((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 86_400_000);
+  return Math.round(
+    (Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 86_400_000,
+  );
 }
 
 /** Meio-dia (SP) da data, para formatar dias sem risco de virar o dia por fuso. */

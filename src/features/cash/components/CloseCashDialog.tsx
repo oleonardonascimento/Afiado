@@ -42,7 +42,7 @@ export function CloseCashDialog({
   const countedFull: ByMethod = { ...emptyByMethod() };
   for (const m of PAYMENT_METHODS) countedFull[m] = counted[m] ?? 0;
   const diff = cashDifference(expected, countedFull);
-  const needsNote = complete && diff.totalCents !== 0 && !note.trim();
+  const needsNote = complete && !diff.matches && !note.trim();
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
@@ -108,18 +108,20 @@ export function CloseCashDialog({
           <p
             className={cn(
               "font-medium",
-              diff.totalCents === 0 ? "text-success" : "text-danger",
+              diff.matches ? "text-success" : "text-danger",
             )}
             role="status"
           >
-            {diff.totalCents === 0
+            {diff.matches
               ? "Tudo confere."
-              : `Diferença total de ${diff.totalCents > 0 ? "+" : "−"}${formatBRL(Math.abs(diff.totalCents))}. Explique na observação.`}
+              : diff.totalCents === 0
+                ? `Não bate em ${diff.mismatched.map((m) => PAYMENT_METHOD_LABEL[m]).join(" e ")}: o total fecha, mas as formas se compensam. Explique na observação.`
+                : `Diferença total de ${diff.totalCents > 0 ? "+" : "−"}${formatBRL(Math.abs(diff.totalCents))}. Explique na observação.`}
           </p>
         )}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="cash-note">
-            Observação{diff.totalCents !== 0 && complete ? "" : " (opcional)"}
+            Observação{!diff.matches && complete ? "" : " (opcional)"}
           </Label>
           <Textarea
             id="cash-note"

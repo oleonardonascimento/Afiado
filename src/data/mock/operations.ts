@@ -1,6 +1,10 @@
 /** Comanda, caixa, Clube e comissões no mock — a V2 faz o mesmo no servidor. */
 import { addMonths as addMonthsDate } from "date-fns";
-import { NotFoundError, OperationError, type NewMovement } from "@/data/repositories";
+import {
+  NotFoundError,
+  OperationError,
+  type NewMovement,
+} from "@/data/repositories";
 import type { MockStore } from "@/data/mock/store";
 import { commissionForItem } from "@/domain/commission";
 import type {
@@ -13,7 +17,11 @@ import type {
   PaymentMethod,
   Subscription,
 } from "@/domain/entities";
-import { applyClubBenefit, closeOrderProblem, orderTotals } from "@/domain/order";
+import {
+  applyClubBenefit,
+  closeOrderProblem,
+  orderTotals,
+} from "@/domain/order";
 import { isSubscriptionActive, planUsage } from "@/domain/subscription";
 import { todayIn } from "@/lib/calendar";
 
@@ -24,26 +32,48 @@ export function openCashSession(db: DbSnapshot): CashSession | undefined {
   return db.cashSessions.find((s) => s.closedAt === null);
 }
 
-function activeSubscription(db: DbSnapshot, clientId: string | null): Subscription | undefined {
+function activeSubscription(
+  db: DbSnapshot,
+  clientId: string | null,
+): Subscription | undefined {
   if (!clientId) return undefined;
-  return db.subscriptions.find((s) => s.clientId === clientId && isSubscriptionActive(s, new Date()));
+  return db.subscriptions.find(
+    (s) => s.clientId === clientId && isSubscriptionActive(s, new Date()),
+  );
 }
 
-function withClub(db: DbSnapshot, clientId: string | null, items: OrderItem[]): OrderItem[] {
+/** Cobertura do Clube recalculada com o uso já fechado; sem assinatura, nada fica coberto. */
+function recheckClub(
+  db: DbSnapshot,
+  clientId: string | null,
+  items: OrderItem[],
+): OrderItem[] {
   const sub = activeSubscription(db, clientId);
   const plan = sub && db.plans.find((p) => p.id === sub.planId);
-  if (!sub || !plan) return items;
-  return applyClubBenefit(items, plan, planUsage(sub, db.orders), todayIn(new Date()));
+  if (!sub || !plan) return items.map((i) => ({ ...i, clubCovered: false }));
+  return applyClubBenefit(
+    items,
+    plan,
+    planUsage(sub, db.orders),
+    todayIn(new Date()),
+  );
 }
 
-export function openOrderFromAppointment(store: MockStore, appointmentId: string): Order {
+export function openOrderFromAppointment(
+  store: MockStore,
+  appointmentId: string,
+): Order {
   const db = store.read();
   const apt = db.appointments.find((a) => a.id === appointmentId);
   if (!apt) throw new NotFoundError(`appointments/${appointmentId}`);
-  const existing = apt.orderId ? db.orders.find((o) => o.id === apt.orderId) : undefined;
-  if (existing) return existing;
+  const existing = apt.orderId
+    ? db.orders.find((o) => o.id === apt.orderId)
+    : undefined;
+  if (existing && existing.status !== "canceled") return existing;
   if (apt.status === "canceled" || apt.status === "no_show") {
-    throw new OperationError("Este agendamento foi cancelado ou marcado como falta.");
+    throw new OperationError(
+      "Este agendamento foi cancelado ou marcado como falta.",
+    );
   }
   const items: OrderItem[] = apt.serviceIds.map((serviceId) => {
     const service = db.services.find((s) => s.id === serviceId);
@@ -65,7 +95,7 @@ export function openOrderFromAppointment(store: MockStore, appointmentId: string
     professionalId: apt.professionalId,
     appointmentId: apt.id,
     status: "open",
-    items: withClub(db, apt.clientId, items),
+    items: recheckClub(db, apt.clientId, items),
     discountCents: 0,
     payments: [],
     openedAt: nowIso(),
@@ -83,7 +113,11 @@ export function openOrderFromAppointment(store: MockStore, appointmentId: string
   return order;
 }
 
-export function openWalkInOrder(store: MockStore, clientId: string | null, professionalId: string): Order {
+export function openWalkInOrder(
+  store: MockStore,
+  clientId: string | null,
+  professionalId: string,
+): Order {
   const order: Order = {
     id: uid(),
     clientId,
@@ -103,14 +137,34 @@ export function openWalkInOrder(store: MockStore, clientId: string | null, profe
   return order;
 }
 
-export function closeOrder(store: MockStore, id: string, payments: Payment[]): Order {
+export function closeOrder(
+  store: MockStore,
+  id: string,
+  payments: Payment[],
+): Order {
   const db = store.read();
   const current = db.orders.find((o) => o.id === id);
   if (!current) throw new NotFoundError(`orders/${id}`);
   const session = openCashSession(db);
-  const candidate: Order = { ...current, payments: payments.filter((p) => p.amountCents > 0) };
+  const items = recheckClub(db, current.clientId, current.items);
+  if (
+    items.some((item, i) => item.clubCovered !== current.items[i]?.clubCovered)
+  ) {
+    store.write((d) => {
+      const order = d.orders.find((o) => o.id === id);
+      if (order) order.items = items;
+    });
+    throw new OperationError(
+      "O benefício do Clube mudou (já foi usado em outra comanda ou a assinatura não vale). Os valores foram atualizados: confira o pagamento e feche de novo.",
+    );
+  }
+  const candidate: Order = {
+    ...current,
+    payments: payments.filter((p) => p.amountCents > 0),
+  };
   const problem = closeOrderProblem(candidate, Boolean(session));
-  if (problem || !session) throw new OperationError(problem ?? "O caixa está fechado.");
+  if (problem || !session)
+    throw new OperationError(problem ?? "O caixa está fechado.");
   const totals = orderTotals(candidate);
   const closedAt = nowIso();
 
@@ -172,16 +226,29 @@ export function cancelOrder(store: MockStore, id: string): Order {
   const db = store.read();
   const order = db.orders.find((o) => o.id === id);
   if (!order) throw new NotFoundError(`orders/${id}`);
-  if (order.status !== "open") throw new OperationError("Só comandas abertas podem ser canceladas.");
+  if (order.status !== "open")
+    throw new OperationError("Só comandas abertas podem ser canceladas.");
   store.write((d) => {
     const target = d.orders.find((o) => o.id === id);
     if (target) target.status = "canceled";
+    const apt = order.appointmentId
+      ? d.appointments.find((a) => a.id === order.appointmentId)
+      : undefined;
+    if (apt && apt.orderId === id) {
+      apt.status = "in_service";
+      apt.orderId = null;
+    }
   });
   return { ...order, status: "canceled" };
 }
 
-export function openCash(store: MockStore, openingCents: number, staffId: string): CashSession {
-  if (openCashSession(store.read())) throw new OperationError("Já existe um caixa aberto.");
+export function openCash(
+  store: MockStore,
+  openingCents: number,
+  staffId: string,
+): CashSession {
+  if (openCashSession(store.read()))
+    throw new OperationError("Já existe um caixa aberto.");
   const session: CashSession = {
     id: uid(),
     openedAt: nowIso(),
@@ -197,10 +264,17 @@ export function openCash(store: MockStore, openingCents: number, staffId: string
   return session;
 }
 
-export function addCashMovement(store: MockStore, input: NewMovement): CashMovement {
+export function addCashMovement(
+  store: MockStore,
+  input: NewMovement,
+): CashMovement {
   const session = openCashSession(store.read());
-  if (!session) throw new OperationError("O caixa está fechado. Abra o caixa para lançar movimentos.");
-  if (input.amountCents <= 0) throw new OperationError("Informe um valor maior que zero.");
+  if (!session)
+    throw new OperationError(
+      "O caixa está fechado. Abra o caixa para lançar movimentos.",
+    );
+  if (input.amountCents <= 0)
+    throw new OperationError("Informe um valor maior que zero.");
   const movement: CashMovement = {
     id: uid(),
     sessionId: session.id,
@@ -289,6 +363,7 @@ export function markCommissionsPaid(store: MockStore, ids: string[]) {
   const paidAt = nowIso();
   const set = new Set(ids);
   store.write((d) => {
-    for (const c of d.commissions) if (set.has(c.id) && !c.paidAt) c.paidAt = paidAt;
+    for (const c of d.commissions)
+      if (set.has(c.id) && !c.paidAt) c.paidAt = paidAt;
   });
 }

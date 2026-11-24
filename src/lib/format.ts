@@ -3,7 +3,10 @@ import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 export const TZ = "America/Sao_Paulo";
 
-const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const brl = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
 
 /** Valores monetários do domínio são inteiros em centavos. */
 export function formatBRL(cents: number): string {
@@ -25,8 +28,10 @@ export function formatWeekday(iso: string): string {
 /** Telefone guardado só com dígitos (DDD + número). */
 export function formatPhone(digits: string): string {
   const d = digits.replace(/\D/g, "");
-  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  if (d.length === 11)
+    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10)
+    return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return d;
 }
 
@@ -36,7 +41,12 @@ export function toZoned(iso: string): Date {
 
 /** Lê um valor digitado em reais ("45", "45,50", "R$ 1.234,56") e devolve centavos; null se inválido. */
 export function parseBRL(text: string): number | null {
-  const clean = text.replace(/R\$\s?/, "").replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
+  const raw = text.replace(/R\$\s?/, "").replace(/\s/g, "");
+  // "." é milhar só em grupos de 3 dígitos ("1.234", "1.234,50"); senão é o decimal do teclado ("45.50").
+  const thousands = /^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(raw);
+  const clean = thousands
+    ? raw.replace(/\./g, "").replace(",", ".")
+    : raw.replace(",", ".");
   if (!/^\d+(\.\d{1,2})?$/.test(clean)) return null;
   return Math.round(Number(clean) * 100);
 }

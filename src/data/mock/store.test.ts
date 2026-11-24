@@ -66,7 +66,11 @@ describe("store", () => {
   });
 
   it("reset volta ao seed", () => {
-    const store = createStore({ storage: memoryStorage(), seed, latency: [0, 0] });
+    const store = createStore({
+      storage: memoryStorage(),
+      seed,
+      latency: [0, 0],
+    });
     store.write((db) => {
       db.shop.name = "Outro";
     });

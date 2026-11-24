@@ -9,7 +9,11 @@ export function toCsv(header: string[], rows: (string | number)[][]): string {
 }
 
 /** Baixa um texto como arquivo (com BOM para o Excel reconhecer UTF-8). */
-export function downloadText(filename: string, text: string, type = "text/csv;charset=utf-8") {
+export function downloadText(
+  filename: string,
+  text: string,
+  type = "text/csv;charset=utf-8",
+) {
   const url = URL.createObjectURL(new Blob(["﻿", text], { type }));
   const link = document.createElement("a");
   link.href = url;

@@ -87,6 +87,7 @@ function OrderForm({ order }: { order: Order }) {
   const update = useUpdateOrder();
   const close = useCloseOrder();
   const cancel = useCancelOrder();
+  const orders = useOrders();
 
   const readOnly = order.status !== "open";
   const [items, setItems] = useState<OrderItem[]>(order.items);
@@ -154,12 +155,18 @@ function OrderForm({ order }: { order: Order }) {
                     ? `Comanda fechada. Troco: ${formatBRL(totals.changeCents)}`
                     : "Comanda fechada",
                 ),
-              onError: (e) =>
+              onError: (e) => {
                 toast.error(
                   e instanceof OperationError
                     ? e.message
                     : "Não foi possível fechar. Tente de novo.",
-                ),
+                );
+                // O mock pode ter corrigido a cobertura do Clube: traz os itens atualizados.
+                void orders.refetch().then(({ data }) => {
+                  const fresh = data?.find((o) => o.id === order.id);
+                  if (fresh) setItems(fresh.items);
+                });
+              },
             },
           ),
         onError: () =>

@@ -8,9 +8,17 @@ type IcsEvent = {
   description: string;
 };
 
-const escape = (text: string) => text.replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
+const escape = (text: string) =>
+  text
+    .replace(/\\/g, "\\\\")
+    .replace(/([,;])/g, "\\$1")
+    .replace(/\n/g, "\\n");
 
-const stamp = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const stamp = (iso: string) =>
+  new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 
 export function buildIcs(event: IcsEvent): string {
   const lines = [

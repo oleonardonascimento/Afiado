@@ -12,7 +12,9 @@ import type {
 } from "@/domain/entities";
 import { createEmptySnapshot } from "@/data/mock/empty-snapshot";
 
-const week = (byDay: Partial<Record<number, [string, string][]>>): WeeklyHours[] =>
+const week = (
+  byDay: Partial<Record<number, [string, string][]>>,
+): WeeklyHours[] =>
   [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({
     weekday,
     ranges: (byDay[weekday] ?? []).map(([start, end]) => ({ start, end })),
@@ -47,7 +49,8 @@ export const shop: Barbershop = {
   messages: {
     confirmation:
       "Olá, {nome}! Seu horário na Afiado está marcado para {data} às {hora}. Responda SIM para confirmar.",
-    reminder: "Oi, {nome}! Lembrete: amanhã, {data}, às {hora}, tem horário na Afiado.",
+    reminder:
+      "Oi, {nome}! Lembrete: amanhã, {data}, às {hora}, tem horário na Afiado.",
     missYou:
       "Oi, {nome}! Faz tempo que você não aparece na Afiado. Quer agendar? É só responder esta mensagem.",
   },
@@ -87,7 +90,13 @@ export const services: Service[] = [
 
 const allServiceIds = services.map((x) => x.id);
 
-const pro = (p: Omit<Professional, "active" | "photoUrl" | "clubCommissionCents" | "commissionPct"> & Partial<Professional>): Professional => ({
+const pro = (
+  p: Omit<
+    Professional,
+    "active" | "photoUrl" | "clubCommissionCents" | "commissionPct"
+  > &
+    Partial<Professional>,
+): Professional => ({
   active: true,
   photoUrl: null,
   clubCommissionCents: 1500,
@@ -105,10 +114,22 @@ export const professionals: Professional[] = [
     serviceIds: allServiceIds,
     commissionOverrides: {},
     hours: week({
-      2: [["10:00", "12:30"], ["13:30", "19:00"]],
-      3: [["10:00", "12:30"], ["13:30", "19:00"]],
-      4: [["10:00", "12:30"], ["13:30", "19:00"]],
-      5: [["10:00", "12:30"], ["13:30", "19:00"]],
+      2: [
+        ["10:00", "12:30"],
+        ["13:30", "19:00"],
+      ],
+      3: [
+        ["10:00", "12:30"],
+        ["13:30", "19:00"],
+      ],
+      4: [
+        ["10:00", "12:30"],
+        ["13:30", "19:00"],
+      ],
+      5: [
+        ["10:00", "12:30"],
+        ["13:30", "19:00"],
+      ],
       6: [["08:00", "14:00"]],
     }),
   }),
@@ -121,9 +142,18 @@ export const professionals: Professional[] = [
     serviceIds: allServiceIds,
     commissionOverrides: { "svc-3": 50 },
     hours: week({
-      2: [["09:00", "13:00"], ["14:00", "20:00"]],
-      3: [["09:00", "13:00"], ["14:00", "20:00"]],
-      5: [["09:00", "13:00"], ["14:00", "20:00"]],
+      2: [
+        ["09:00", "13:00"],
+        ["14:00", "20:00"],
+      ],
+      3: [
+        ["09:00", "13:00"],
+        ["14:00", "20:00"],
+      ],
+      5: [
+        ["09:00", "13:00"],
+        ["14:00", "20:00"],
+      ],
       6: [["08:00", "18:00"]],
     }),
   }),
@@ -136,11 +166,26 @@ export const professionals: Professional[] = [
     serviceIds: allServiceIds,
     commissionOverrides: {},
     hours: week({
-      2: [["09:00", "13:00"], ["14:00", "20:00"]],
-      3: [["09:00", "13:00"], ["14:00", "20:00"]],
-      4: [["09:00", "13:00"], ["14:00", "20:00"]],
-      5: [["09:00", "13:00"], ["14:00", "20:00"]],
-      6: [["08:00", "12:00"], ["13:00", "18:00"]],
+      2: [
+        ["09:00", "13:00"],
+        ["14:00", "20:00"],
+      ],
+      3: [
+        ["09:00", "13:00"],
+        ["14:00", "20:00"],
+      ],
+      4: [
+        ["09:00", "13:00"],
+        ["14:00", "20:00"],
+      ],
+      5: [
+        ["09:00", "13:00"],
+        ["14:00", "20:00"],
+      ],
+      6: [
+        ["08:00", "12:00"],
+        ["13:00", "18:00"],
+      ],
     }),
   }),
   pro({
@@ -149,13 +194,27 @@ export const professionals: Professional[] = [
     role: "barber",
     bio: "Corte social e infantil, paciência de sobra com a criançada.",
     specialties: ["Corte social", "Infantil"],
-    serviceIds: allServiceIds.filter((id) => !["svc-9", "svc-11", "svc-12"].includes(id)),
+    serviceIds: allServiceIds.filter(
+      (id) => !["svc-9", "svc-11", "svc-12"].includes(id),
+    ),
     commissionOverrides: {},
     hours: week({
-      2: [["11:00", "15:00"], ["16:00", "20:00"]],
-      3: [["11:00", "15:00"], ["16:00", "20:00"]],
-      4: [["11:00", "15:00"], ["16:00", "20:00"]],
-      5: [["11:00", "15:00"], ["16:00", "20:00"]],
+      2: [
+        ["11:00", "15:00"],
+        ["16:00", "20:00"],
+      ],
+      3: [
+        ["11:00", "15:00"],
+        ["16:00", "20:00"],
+      ],
+      4: [
+        ["11:00", "15:00"],
+        ["16:00", "20:00"],
+      ],
+      5: [
+        ["11:00", "15:00"],
+        ["16:00", "20:00"],
+      ],
       6: [["08:00", "16:00"]],
     }),
   }),
@@ -180,7 +239,16 @@ const prd = (
   costCents: number,
   stock: number,
   minStock: number,
-): Product => ({ id: `prd-${n}`, name, priceCents, costCents, stock, minStock, commissionPct: 10, active: true });
+): Product => ({
+  id: `prd-${n}`,
+  name,
+  priceCents,
+  costCents,
+  stock,
+  minStock,
+  commissionPct: 10,
+  active: true,
+});
 
 export const products: Product[] = [
   prd(1, "Pomada modeladora", 4500, 2000, 18, 5),
@@ -234,14 +302,59 @@ export const plans: Plan[] = [
 ];
 
 export const FIRST_NAMES = [
-  "Gabriel", "Lucas", "Matheus", "Pedro", "Rafael", "Bruno", "Felipe", "João", "Gustavo", "Thiago",
-  "Leonardo", "Rodrigo", "Daniel", "Vinícius", "Eduardo", "André", "Caio", "Marcelo", "Henrique", "Igor",
-  "Paulo", "Renato", "Sérgio", "Otávio", "Murilo", "Diego", "Samuel", "Arthur", "Heitor", "Davi",
+  "Gabriel",
+  "Lucas",
+  "Matheus",
+  "Pedro",
+  "Rafael",
+  "Bruno",
+  "Felipe",
+  "João",
+  "Gustavo",
+  "Thiago",
+  "Leonardo",
+  "Rodrigo",
+  "Daniel",
+  "Vinícius",
+  "Eduardo",
+  "André",
+  "Caio",
+  "Marcelo",
+  "Henrique",
+  "Igor",
+  "Paulo",
+  "Renato",
+  "Sérgio",
+  "Otávio",
+  "Murilo",
+  "Diego",
+  "Samuel",
+  "Arthur",
+  "Heitor",
+  "Davi",
 ];
 
 export const LAST_NAMES = [
-  "Silva", "Santos", "Oliveira", "Souza", "Lima", "Pereira", "Costa", "Rodrigues", "Almeida", "Nascimento",
-  "Carvalho", "Gomes", "Martins", "Araújo", "Ribeiro", "Barbosa", "Teixeira", "Mendes", "Freitas", "Cardoso",
+  "Silva",
+  "Santos",
+  "Oliveira",
+  "Souza",
+  "Lima",
+  "Pereira",
+  "Costa",
+  "Rodrigues",
+  "Almeida",
+  "Nascimento",
+  "Carvalho",
+  "Gomes",
+  "Martins",
+  "Araújo",
+  "Ribeiro",
+  "Barbosa",
+  "Teixeira",
+  "Mendes",
+  "Freitas",
+  "Cardoso",
 ];
 
 export const REVIEW_COMMENTS: Record<3 | 4 | 5, string[]> = {

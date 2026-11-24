@@ -167,8 +167,8 @@ export function CashView() {
             {history.map((s) => {
               const expected = cashExpected(s, moves);
               const diff = s.counted
-                ? cashDifference(expected, s.counted).totalCents
-                : 0;
+                ? cashDifference(expected, s.counted)
+                : null;
               const total =
                 PAYMENT_METHODS.reduce((sum, m) => sum + expected[m], 0) -
                 s.openingCents;
@@ -194,14 +194,19 @@ export function CashView() {
                     <span
                       className={cn(
                         "tabular-nums",
-                        diff === 0
+                        !diff || diff.matches
                           ? "text-text-muted"
                           : "text-danger font-medium",
                       )}
                     >
-                      {diff === 0
+                      {!diff || diff.matches
                         ? "Sem diferença"
-                        : `Diferença ${diff > 0 ? "+" : "−"}${formatBRL(Math.abs(diff))}`}
+                        : `Diferença em ${diff.mismatched
+                            .map((m) => {
+                              const v = diff.byMethod[m];
+                              return `${PAYMENT_METHOD_LABEL[m]} ${v > 0 ? "+" : "−"}${formatBRL(Math.abs(v))}`;
+                            })
+                            .join(", ")}`}
                     </span>
                   </span>
                 </li>

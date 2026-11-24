@@ -92,7 +92,13 @@ const nextId = (ctx: Ctx, prefix: string) => {
 
 export function generateSeed(now: Date): DbSnapshot {
   const db = createEmptySnapshot();
-  const ctx: Ctx = { rng: createRandom(42), now: now.getTime(), today: todayIn(now), db, seq: {} };
+  const ctx: Ctx = {
+    rng: createRandom(42),
+    now: now.getTime(),
+    today: todayIn(now),
+    db,
+    seq: {},
+  };
 
   db.shop = structuredClone(shop);
   db.professionals = structuredClone(professionals);
@@ -173,7 +179,13 @@ function makeSubscriptions(ctx: Ctx): Subscription[] {
     while (addMonths(startDay, k + 1) <= reference) k++;
     const periodStart = addMonths(startDay, k);
     const status: Subscription["status"] =
-      i < 13 ? "active" : i < 15 ? "past_due" : i === 15 ? "canceling" : "canceled";
+      i < 13
+        ? "active"
+        : i < 15
+          ? "past_due"
+          : i === 15
+            ? "canceling"
+            : "canceled";
     return {
       id: `sub-${i + 1}`,
       clientId: `cli-${i + 1}`,
@@ -212,12 +224,17 @@ function makeCharges(ctx: Ctx): Charge[] {
   return charges;
 }
 
-function activeSubscription(ctx: Ctx, clientId: string, date: string): Subscription | null {
+function activeSubscription(
+  ctx: Ctx,
+  clientId: string,
+  date: string,
+): Subscription | null {
   const sub = ctx.db.subscriptions.find((s) => s.clientId === clientId);
   if (!sub) return null;
   if (date < dateOf(sub.startedAt)) return null;
   if (sub.canceledAt && date >= dateOf(sub.currentPeriodEnd)) return null;
-  if (sub.status === "past_due" && date >= dateOf(sub.currentPeriodStart)) return null;
+  if (sub.status === "past_due" && date >= dateOf(sub.currentPeriodStart))
+    return null;
   return sub;
 }
 
@@ -251,14 +268,22 @@ function nextWorkday(from: string, offset: number): string {
   return d;
 }
 
-const overlapsTimeOff = (ctx: Ctx, proId: string, startIso: string, endIso: string) =>
+const overlapsTimeOff = (
+  ctx: Ctx,
+  proId: string,
+  startIso: string,
+  endIso: string,
+) =>
   ctx.db.timeOff.some(
     (t) => t.professionalId === proId && t.start < endIso && t.end > startIso,
   );
 
 /* ---------------- agenda, comandas, caixa, comissões ---------------- */
 
-type ClubUsage = Map<string, { lastCovered: string | null; perMonth: Map<string, number> }>;
+type ClubUsage = Map<
+  string,
+  { lastCovered: string | null; perMonth: Map<string, number> }
+>;
 
 function makeAgenda(ctx: Ctx) {
   const { db, rng, today } = ctx;
@@ -285,16 +310,29 @@ function makeAgenda(ctx: Ctx) {
           }
           const combo = pickCombo(rng, pro);
           const duration = combo.reduce(
-            (sum, id) => sum + (db.services.find((x) => x.id === id)?.durationMinutes ?? 0),
+            (sum, id) =>
+              sum +
+              (db.services.find((x) => x.id === id)?.durationMinutes ?? 0),
             0,
           );
           const startIso = atTime(date, fromMinutes(cursor));
           const endIso = atTime(date, fromMinutes(cursor + duration));
-          if (cursor + duration > end || overlapsTimeOff(ctx, pro.id, startIso, endIso)) {
+          if (
+            cursor + duration > end ||
+            overlapsTimeOff(ctx, pro.id, startIso, endIso)
+          ) {
             cursor += 15;
             continue;
           }
-          const order = createAppointment(ctx, usage, pro, combo, date, startIso, endIso);
+          const order = createAppointment(
+            ctx,
+            usage,
+            pro,
+            combo,
+            date,
+            startIso,
+            endIso,
+          );
           if (order) dayOrders.push(order);
           cursor += duration;
         }
@@ -354,7 +392,10 @@ function createAppointment(
   } else if (rng.chance(0.03)) {
     status = "canceled";
   } else {
-    status = start - now < 2 * 86_400_000 && rng.chance(0.5) ? "confirmed" : "scheduled";
+    status =
+      start - now < 2 * 86_400_000 && rng.chance(0.5)
+        ? "confirmed"
+        : "scheduled";
   }
   const appointment: Appointment = {
     id: nextId(ctx, "apt"),
@@ -368,7 +409,10 @@ function createAppointment(
     note: rng.chance(0.08) ? "Quer manter o comprimento em cima." : "",
     origin: rng.chance(0.7) ? "online" : "panel",
     createdAt: new Date(start - rng.int(1, 10) * 86_400_000).toISOString(),
-    canceledAt: status === "canceled" ? new Date(start - rng.int(2, 30) * 3_600_000).toISOString() : null,
+    canceledAt:
+      status === "canceled"
+        ? new Date(start - rng.int(2, 30) * 3_600_000).toISOString()
+        : null,
     orderId: null,
   };
   db.appointments.push(appointment);
@@ -401,7 +445,8 @@ function createOrder(
       quantity: 1,
       unitPriceCents: service.priceCents,
       discountCents: 0,
-      clubCovered: sub && plan ? useClub(usage, sub.id, plan, serviceId, date) : false,
+      clubCovered:
+        sub && plan ? useClub(usage, sub.id, plan, serviceId, date) : false,
       professionalId: pro.id,
     };
   });
@@ -424,9 +469,15 @@ function createOrder(
   if (total > 0) {
     if (rng.chance(0.08) && total >= 2000) {
       const cash = Math.round(total / 2 / 100) * 100;
-      payments.push({ method: "cash", amountCents: cash }, { method: "pix", amountCents: total - cash });
+      payments.push(
+        { method: "cash", amountCents: cash },
+        { method: "pix", amountCents: total - cash },
+      );
     } else {
-      payments.push({ method: rng.weighted(PAYMENT_WEIGHTS), amountCents: total });
+      payments.push({
+        method: rng.weighted(PAYMENT_WEIGHTS),
+        amountCents: total,
+      });
     }
   }
   const order: Order = {
@@ -479,12 +530,20 @@ function useClub(
 ): boolean {
   const benefit = plan.benefits.find((b) => b.serviceId === serviceId);
   if (!benefit) return false;
-  const entry = usage.get(subId) ?? { lastCovered: null, perMonth: new Map<string, number>() };
+  const entry = usage.get(subId) ?? {
+    lastCovered: null,
+    perMonth: new Map<string, number>(),
+  };
   usage.set(subId, entry);
-  if (entry.lastCovered && diffDays(date, entry.lastCovered) < plan.rules.minDaysBetweenUses) return false;
+  if (
+    entry.lastCovered &&
+    diffDays(date, entry.lastCovered) < plan.rules.minDaysBetweenUses
+  )
+    return false;
   const key = `${serviceId}:${date.slice(0, 7)}`;
   const used = entry.perMonth.get(key) ?? 0;
-  if (benefit.monthlyLimit !== null && used >= benefit.monthlyLimit) return false;
+  if (benefit.monthlyLimit !== null && used >= benefit.monthlyLimit)
+    return false;
   entry.perMonth.set(key, used + 1);
   entry.lastCovered = date;
   return true;
@@ -492,7 +551,8 @@ function useClub(
 
 function makeCashSession(ctx: Ctx, date: string, orders: Order[]) {
   const { db, rng, today } = ctx;
-  const ranges = db.shop.hours.find((h) => h.weekday === weekdayOf(date))?.ranges ?? [];
+  const ranges =
+    db.shop.hours.find((h) => h.weekday === weekdayOf(date))?.ranges ?? [];
   const open = ranges[0]?.start ?? "09:00";
   const close = ranges[ranges.length - 1]?.end ?? "20:00";
   const isToday = date === today;
@@ -536,11 +596,15 @@ function makeCashSession(ctx: Ctx, date: string, orders: Order[]) {
   if (!isToday) {
     const expected = { cash: OPENING_CENTS, pix: 0, debit: 0, credit: 0 };
     for (const m of movements) {
-      expected[m.method] += m.kind === "order" || m.kind === "income" ? m.amountCents : -m.amountCents;
+      expected[m.method] +=
+        m.kind === "order" || m.kind === "income"
+          ? m.amountCents
+          : -m.amountCents;
     }
     const diff = rng.chance(0.1) ? rng.pick([-500, -200, 300]) : 0;
     session.counted = { ...expected, cash: Math.max(0, expected.cash + diff) };
-    session.note = diff !== 0 ? "Diferença no dinheiro conferida no fechamento." : "";
+    session.note =
+      diff !== 0 ? "Diferença no dinheiro conferida no fechamento." : "";
   }
   db.cashSessions.push(session);
   db.cashMovements.push(...movements);
@@ -548,7 +612,8 @@ function makeCashSession(ctx: Ctx, date: string, orders: Order[]) {
 
 function maybeReview(ctx: Ctx, appointment: Appointment) {
   const { rng, db, today } = ctx;
-  if (diffDays(today, dateOf(appointment.end)) > 60 || !rng.chance(0.08)) return;
+  if (diffDays(today, dateOf(appointment.end)) > 60 || !rng.chance(0.08))
+    return;
   const rating = rng.weighted([
     [5, 60],
     [4, 30],
@@ -561,7 +626,9 @@ function maybeReview(ctx: Ctx, appointment: Appointment) {
     professionalId: appointment.professionalId,
     rating,
     comment: rng.pick(REVIEW_COMMENTS[rating]),
-    createdAt: new Date(Date.parse(appointment.end) + 3 * 3_600_000).toISOString(),
+    createdAt: new Date(
+      Date.parse(appointment.end) + 3 * 3_600_000,
+    ).toISOString(),
     reply: rng.chance(0.3) ? "Valeu pela visita! Até a próxima." : null,
   });
 }

@@ -21,7 +21,8 @@ export const reviewKeys = {
 
 export const appointmentKeys = {
   all: ["appointments"] as const,
-  range: (from: string, to: string) => ["appointments", "range", from, to] as const,
+  range: (from: string, to: string) =>
+    ["appointments", "range", from, to] as const,
   client: (clientId: string) => ["appointments", "client", clientId] as const,
   detail: (id: string) => ["appointments", "detail", id] as const,
 };

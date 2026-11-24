@@ -17,7 +17,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-primary text-primary-fg hover:bg-primary/90 active:bg-primary/80",
+        primary:
+          "bg-primary text-primary-fg hover:bg-primary/90 active:bg-primary/80",
         brand: "bg-brand text-brand-fg hover:bg-brand/90 active:bg-brand/80",
         secondary:
           "border-border-strong bg-surface text-text hover:bg-surface-2 active:bg-surface-2/70",
@@ -66,7 +67,9 @@ function Button({
         children
       ) : (
         <>
-          {loading && <Loader2 className="animate-spin" strokeWidth={1.75} aria-hidden />}
+          {loading && (
+            <Loader2 className="animate-spin" strokeWidth={1.75} aria-hidden />
+          )}
           {children}
         </>
       )}

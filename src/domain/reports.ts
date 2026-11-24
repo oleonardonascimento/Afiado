@@ -72,7 +72,12 @@ export function topServices(orders: Order[], limit: number) {
  * Retenção em `days` dias: dos clientes atendidos no período que já tinham vindo antes,
  * quantos voltaram em até `days` dias depois da visita anterior. Cliente novo não entra na conta.
  */
-export function retention(appointments: Appointment[], from: string, to: string, days: number) {
+export function retention(
+  appointments: Appointment[],
+  from: string,
+  to: string,
+  days: number,
+) {
   const visits = new Map<string, string[]>();
   for (const a of appointments.filter((x) => x.status === "done")) {
     const list = visits.get(a.clientId) ?? [];
@@ -90,7 +95,11 @@ export function retention(appointments: Appointment[], from: string, to: string,
     eligible += 1;
     if (diffDays(current, previous) <= days) returned += 1;
   }
-  return { eligible, returned, pct: eligible === 0 ? null : Math.round((returned / eligible) * 100) };
+  return {
+    eligible,
+    returned,
+    pct: eligible === 0 ? null : Math.round((returned / eligible) * 100),
+  };
 }
 
 /** Assinantes ativos no fim do dia `date` (quem pediu cancelamento segue ativo até encerrar). */

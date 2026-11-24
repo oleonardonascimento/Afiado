@@ -1,7 +1,18 @@
 "use client";
 
-import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
-import { appointmentKeys, cashKeys, catalogKeys, clubKeys, commissionKeys, orderKeys } from "@/lib/query-keys";
+import {
+  useMutation,
+  useQueryClient,
+  type QueryKey,
+} from "@tanstack/react-query";
+import {
+  appointmentKeys,
+  cashKeys,
+  catalogKeys,
+  clubKeys,
+  commissionKeys,
+  orderKeys,
+} from "@/lib/query-keys";
 
 /** Tudo que uma operação de balcão pode mudar (agenda, comandas, caixa, comissões, estoque, Clube). */
 export const OPERATION_KEYS: QueryKey[] = [
@@ -16,10 +27,16 @@ export const OPERATION_KEYS: QueryKey[] = [
 ];
 
 /** Mutation que chama um repositório e invalida as query keys afetadas. */
-export function useRepoMutation<TVars, TResult>(fn: (vars: TVars) => Promise<TResult>, keys: QueryKey[]) {
+export function useRepoMutation<TVars, TResult>(
+  fn: (vars: TVars) => Promise<TResult>,
+  keys: QueryKey[],
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: fn,
-    onSettled: () => Promise.all(keys.map((queryKey) => queryClient.invalidateQueries({ queryKey }))),
+    onSettled: () =>
+      Promise.all(
+        keys.map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+      ),
   });
 }

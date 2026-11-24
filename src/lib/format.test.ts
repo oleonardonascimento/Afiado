@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { centsToInput, formatBRL, formatDate, formatPhone, formatTime, formatWeekday, parseBRL } from "@/lib/format";
+import {
+  centsToInput,
+  formatBRL,
+  formatDate,
+  formatPhone,
+  formatTime,
+  formatWeekday,
+  parseBRL,
+} from "@/lib/format";
 
 describe("format", () => {
   it("formata moeda em centavos", () => {
@@ -23,6 +31,13 @@ describe("format", () => {
     expect(parseBRL("45")).toBe(4500);
     expect(parseBRL("45,5")).toBe(4550);
     expect(parseBRL("R$ 1.234,56")).toBe(123456);
+    // Teclado de celular só com "." decimal: não pode virar milhar (100×).
+    expect(parseBRL("45.50")).toBe(4550);
+    expect(parseBRL("45.5")).toBe(4550);
+    expect(parseBRL("1.234")).toBe(123400);
+    expect(parseBRL("1.234,50")).toBe(123450);
+    expect(parseBRL("1.234.567")).toBe(123456700);
+    expect(parseBRL("1.234.56")).toBeNull();
     expect(parseBRL("")).toBeNull();
     expect(parseBRL("abc")).toBeNull();
     expect(parseBRL("-3")).toBeNull();

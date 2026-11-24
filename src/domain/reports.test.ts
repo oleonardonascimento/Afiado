@@ -151,9 +151,21 @@ describe("reports", () => {
       visit("e", "2026-10-30"),
       visit("e", "2026-11-04", "no_show"), // falta não conta como visita
     ];
-    expect(retention(apts, "2026-11-01", "2026-11-30", 30)).toEqual({ eligible: 3, returned: 1, pct: 33 });
-    expect(retention(apts, "2026-11-01", "2026-11-30", 60)).toEqual({ eligible: 3, returned: 2, pct: 67 });
-    expect(retention([], "2026-11-01", "2026-11-30", 30)).toEqual({ eligible: 0, returned: 0, pct: null });
+    expect(retention(apts, "2026-11-01", "2026-11-30", 30)).toEqual({
+      eligible: 3,
+      returned: 1,
+      pct: 33,
+    });
+    expect(retention(apts, "2026-11-01", "2026-11-30", 60)).toEqual({
+      eligible: 3,
+      returned: 2,
+      pct: 67,
+    });
+    expect(retention([], "2026-11-01", "2026-11-30", 30)).toEqual({
+      eligible: 0,
+      returned: 0,
+      pct: null,
+    });
   });
 
   it("assinantes ativos numa data: começou antes e não foi encerrado", () => {
