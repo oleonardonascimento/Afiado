@@ -10,6 +10,7 @@ import type {
   CashSession,
   Charge,
   Client,
+  ClientSource,
   Commission,
   Order,
   Plan,
@@ -37,6 +38,37 @@ export class MockNetworkError extends Error {
   }
 }
 
+export class SlotTakenError extends Error {
+  constructor() {
+    super("Esse horário acabou de ser ocupado. Escolha outro horário.");
+    this.name = "SlotTakenError";
+  }
+}
+
+export class InvalidCodeError extends Error {
+  constructor() {
+    super("Código incorreto. Confira o código e tente de novo.");
+    this.name = "InvalidCodeError";
+  }
+}
+
+export type BookingRequest = {
+  clientId: string;
+  serviceIds: string[];
+  /** null = qualquer barbeiro disponível no horário */
+  professionalId: string | null;
+  start: string;
+  note: string;
+  origin: "online" | "panel";
+};
+
+export type SignInRequest = {
+  phone: string;
+  code: string;
+  /** Obrigatório no primeiro acesso. */
+  profile?: { name: string; source?: ClientSource; marketingConsent: boolean };
+};
+
 export type Collection<T extends { id: string }, TCreate = Omit<T, "id">> = {
   list(): Promise<T[]>;
   get(id: string): Promise<T | null>;
@@ -54,6 +86,12 @@ export type Repositories = {
   clients: Collection<Client> & { findByPhone(phone: string): Promise<Client | null> };
   appointments: Collection<Appointment> & {
     listByRange(fromIso: string, toIso: string, professionalId?: string): Promise<Appointment[]>;
+    listByClient(clientId: string): Promise<Appointment[]>;
+    /** Valida que o horário ainda está livre; lança SlotTakenError. */
+    book(request: BookingRequest): Promise<Appointment>;
+    reschedule(id: string, change: { start: string; professionalId: string | null }): Promise<Appointment>;
+    /** Cancela e avisa a lista de espera do dia (RF-08). */
+    cancel(id: string): Promise<Appointment>;
   };
   waitlist: Collection<WaitlistEntry>;
   plans: Collection<Plan>;
@@ -64,6 +102,12 @@ export type Repositories = {
   cashMovements: Collection<CashMovement>;
   commissions: Collection<Commission>;
   reviews: Collection<Review>;
+  auth: {
+    /** V1: o código é simulado e devolvido para ser exibido na tela. */
+    requestCode(phone: string): Promise<{ code: string; isNewClient: boolean }>;
+    verifyCode(request: SignInRequest): Promise<Client>;
+    signOut(): Promise<void>;
+  };
   session: { get(): Promise<Session>; set(patch: Partial<Session>): Promise<Session> };
   demo: { reset(): Promise<void> };
 };

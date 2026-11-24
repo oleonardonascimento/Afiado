@@ -1,4 +1,6 @@
 import { NotFoundError, type Collection, type Repositories } from "@/data/repositories";
+import { createMockAuth } from "@/data/mock/auth";
+import { bookAppointment, cancelAppointment, rescheduleAppointment } from "@/data/mock/booking";
 import type { MockStore } from "@/data/mock/store";
 import type { DbSnapshot } from "@/domain/entities";
 import { normalizePhone } from "@/domain/phone";
@@ -57,6 +59,7 @@ export function createMockRepositories(store: MockStore): Repositories {
 
   const clients = collection("clients");
   const appointments = collection("appointments");
+  const auth = createMockAuth(store);
 
   return {
     shop: {
@@ -101,6 +104,22 @@ export function createMockRepositories(store: MockStore): Repositories {
             ),
         );
       },
+      async listByClient(clientId) {
+        await store.delay();
+        return clone(store.read().appointments.filter((a) => a.clientId === clientId));
+      },
+      async book(request) {
+        await store.delay();
+        return clone(bookAppointment(store, request));
+      },
+      async reschedule(id, change) {
+        await store.delay();
+        return clone(rescheduleAppointment(store, id, change));
+      },
+      async cancel(id) {
+        await store.delay();
+        return clone(cancelAppointment(store, id));
+      },
     },
     waitlist: collection("waitlist"),
     plans: collection("plans"),
@@ -111,6 +130,20 @@ export function createMockRepositories(store: MockStore): Repositories {
     cashMovements: collection("cashMovements"),
     commissions: collection("commissions"),
     reviews: collection("reviews"),
+    auth: {
+      async requestCode(phone) {
+        await store.delay();
+        return auth.requestCode(phone);
+      },
+      async verifyCode(request) {
+        await store.delay();
+        return clone(auth.verifyCode(request));
+      },
+      async signOut() {
+        await store.delay();
+        auth.signOut();
+      },
+    },
     session: {
       async get() {
         await store.delay();
