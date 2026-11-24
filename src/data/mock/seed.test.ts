@@ -57,12 +57,15 @@ function checkSchedule(db: DbSnapshot) {
   }
 }
 
+/** Gerar o seed inteiro leva ~2 s; com a suíte em paralelo passa do limite padrão de 5 s. */
+const SEED_TIMEOUT = 20_000;
+
 describe("seed", () => {
   const db = generateSeed(NOW);
 
   it("é determinístico", () => {
     expect(generateSeed(NOW)).toEqual(db);
-  });
+  }, SEED_TIMEOUT);
 
   it("tem as contagens do PRD", () => {
     expect(db.professionals).toHaveLength(5);
@@ -90,7 +93,7 @@ describe("seed", () => {
     const late = generateSeed(LATE);
     checkSchedule(late);
     checkIntegrity(late);
-  });
+  }, SEED_TIMEOUT);
 
   it("duração do agendamento = soma das durações dos serviços", () => {
     for (const a of db.appointments) {
