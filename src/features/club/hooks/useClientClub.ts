@@ -12,7 +12,10 @@ export function useClientClub(clientId: string | null) {
     queryFn: () => repos.subscriptions.list(),
     enabled: clientId !== null,
   });
-  const plans = useQuery({ queryKey: catalogKeys.plans, queryFn: () => repos.plans.list() });
+  const plans = useQuery({
+    queryKey: catalogKeys.plans,
+    queryFn: () => repos.plans.list(),
+  });
   const orders = useQuery({
     queryKey: orderKeys.all,
     queryFn: () => repos.orders.list(),
@@ -24,8 +27,11 @@ export function useClientClub(clientId: string | null) {
       ?.filter((s) => s.clientId === clientId)
       .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0] ?? null;
   const plan = plans.data?.find((p) => p.id === subscription?.planId) ?? null;
-  const active = subscription ? isSubscriptionActive(subscription, new Date()) : false;
-  const usage = subscription && orders.data ? planUsage(subscription, orders.data) : null;
+  const active = subscription
+    ? isSubscriptionActive(subscription, new Date())
+    : false;
+  const usage =
+    subscription && orders.data ? planUsage(subscription, orders.data) : null;
 
   return {
     subscription,

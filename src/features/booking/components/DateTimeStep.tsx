@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Slot } from "@/domain/availability";
 import { useBookingStore } from "@/features/booking/booking-store";
-import { useBookingAvailability, type DayAvailability } from "@/features/booking/hooks/useBookingAvailability";
+import {
+  useBookingAvailability,
+  type DayAvailability,
+} from "@/features/booking/hooks/useBookingAvailability";
 import { useJoinWaitlist } from "@/features/booking/hooks/useBookingMutations";
 import { useCurrentClient } from "@/features/auth/hooks/useClientAuth";
 import { cn } from "@/lib/cn";
@@ -19,7 +22,11 @@ type DateTimeStepProps = { onChosen: () => void };
 
 const PERIODS = [
   { id: "manha", label: "Manhã", test: (t: string) => t < "12:00" },
-  { id: "tarde", label: "Tarde", test: (t: string) => t >= "12:00" && t < "18:00" },
+  {
+    id: "tarde",
+    label: "Tarde",
+    test: (t: string) => t >= "12:00" && t < "18:00",
+  },
   { id: "noite", label: "Noite", test: (t: string) => t >= "18:00" },
 ];
 
@@ -41,21 +48,28 @@ export function DateTimeStep({ onChosen }: DateTimeStepProps) {
   if (availability.isLoading) {
     return (
       <div className="flex flex-col gap-4">
-        <Skeleton className="h-16 rounded-card" />
-        <Skeleton className="h-40 rounded-card" />
+        <Skeleton className="rounded-card h-16" />
+        <Skeleton className="rounded-card h-40" />
       </div>
     );
   }
-  if (availability.isError) return <ErrorState onRetry={availability.refetch} />;
+  if (availability.isError)
+    return <ErrorState onRetry={availability.refetch} />;
 
-  const firstOpen = availability.days.find((d) => d.slots.length > 0)?.date ?? availability.days[0]?.date;
+  const firstOpen =
+    availability.days.find((d) => d.slots.length > 0)?.date ??
+    availability.days[0]?.date;
   const date = chosenDate ?? firstOpen ?? null;
   const day = availability.days.find((d) => d.date === date);
 
   return (
     <div className="flex flex-col gap-5">
       <h2 className="text-xl font-semibold">Escolha o dia e o horário</h2>
-      <DayStrip days={availability.days} selected={date} onSelect={chooseDate} />
+      <DayStrip
+        days={availability.days}
+        selected={date}
+        onSelect={chooseDate}
+      />
       {day && day.slots.length > 0 ? (
         <SlotGroups
           slots={day.slots}
@@ -67,11 +81,19 @@ export function DateTimeStep({ onChosen }: DateTimeStepProps) {
           }}
         />
       ) : day?.status === "open" ? (
-        <FullDay date={day.date} serviceIds={serviceIds} professionalId={professionalId} />
+        <FullDay
+          date={day.date}
+          serviceIds={serviceIds}
+          professionalId={professionalId}
+        />
       ) : (
         day && (
           <EmptyState
-            title={day.status === "closed" ? "A barbearia não abre neste dia" : "O barbeiro está de folga neste dia"}
+            title={
+              day.status === "closed"
+                ? "A barbearia não abre neste dia"
+                : "O barbeiro está de folga neste dia"
+            }
             description="Escolha outro dia acima."
           />
         )
@@ -103,7 +125,7 @@ function DayStrip({
                 aria-pressed={isSelected}
                 onClick={() => onSelect(d.date)}
                 className={cn(
-                  "flex h-18 w-16 flex-col items-center justify-center rounded-control border text-sm transition-colors duration-150",
+                  "rounded-control flex h-18 w-16 flex-col items-center justify-center border text-sm transition-colors duration-150",
                   isSelected
                     ? "border-primary bg-primary text-primary-fg"
                     : "border-border-strong bg-surface hover:bg-surface-2",
@@ -111,7 +133,9 @@ function DayStrip({
                 )}
               >
                 <span>{capitalizeFirst(formatWeekday(iso).slice(0, 3))}</span>
-                <span className="text-lg font-semibold tabular-nums">{formatDate(iso, "dd")}</span>
+                <span className="text-lg font-semibold tabular-nums">
+                  {formatDate(iso, "dd")}
+                </span>
                 <span className="text-xs">{dayNote(d)}</span>
               </button>
             </li>
@@ -144,8 +168,15 @@ function SlotGroups({
         const list = slots.filter((s) => period.test(timeOf(s.start)));
         if (list.length === 0) return null;
         return (
-          <section key={period.id} aria-labelledby={`period-${period.id}`} className="flex flex-col gap-2">
-            <h3 id={`period-${period.id}`} className="text-sm font-medium text-text-muted">
+          <section
+            key={period.id}
+            aria-labelledby={`period-${period.id}`}
+            className="flex flex-col gap-2"
+          >
+            <h3
+              id={`period-${period.id}`}
+              className="text-text-muted text-sm font-medium"
+            >
               {period.label}
             </h3>
             <ul className="grid grid-cols-4 gap-2 sm:grid-cols-6">
@@ -156,7 +187,7 @@ function SlotGroups({
                     aria-pressed={selected === s.start}
                     onClick={() => onSelect(s)}
                     className={cn(
-                      "h-11 w-full rounded-control border font-medium tabular-nums transition-colors duration-150",
+                      "rounded-control h-11 w-full border font-medium tabular-nums transition-colors duration-150",
                       selected === s.start
                         ? "border-primary bg-primary text-primary-fg"
                         : "border-border-strong bg-surface hover:bg-surface-2",
@@ -194,7 +225,9 @@ function FullDay({
       description="Entre na lista de espera: se alguém cancelar, você recebe um aviso. Ou escolha outro dia acima."
     >
       {join.isSuccess ? (
-        <p className="text-sm font-medium text-success">Você está na lista de espera deste dia.</p>
+        <p className="text-success text-sm font-medium">
+          Você está na lista de espera deste dia.
+        </p>
       ) : (
         <Button
           variant="secondary"
@@ -207,8 +240,12 @@ function FullDay({
             join.mutate(
               { clientId: client.id, date, serviceIds, professionalId },
               {
-                onSuccess: () => toast.success("Pronto! Avisamos se abrir um horário."),
-                onError: () => toast.error("Não foi possível entrar na lista. Tente de novo."),
+                onSuccess: () =>
+                  toast.success("Pronto! Avisamos se abrir um horário."),
+                onError: () =>
+                  toast.error(
+                    "Não foi possível entrar na lista. Tente de novo.",
+                  ),
               },
             );
           }}

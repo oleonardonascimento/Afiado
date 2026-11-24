@@ -9,7 +9,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { fillTemplate } from "@/domain/booking-policy";
 import { useAppointment } from "@/features/account/hooks/useMyAppointments";
 import { useCurrentClient } from "@/features/auth/hooks/useClientAuth";
-import { usePlans, useProfessionals, useServices, useShop } from "@/features/catalog/hooks/useCatalog";
+import {
+  usePlans,
+  useProfessionals,
+  useServices,
+  useShop,
+} from "@/features/catalog/hooks/useCatalog";
 import { useClientClub } from "@/features/club/hooks/useClientClub";
 import { buildIcs } from "@/lib/ics";
 import { formatBRL, formatDate, formatTime } from "@/lib/format";
@@ -30,13 +35,17 @@ export function BookingConfirmation() {
   const club = useClientClub(client?.id ?? null);
 
   if (appointment.isLoading || services.isLoading || shop.isLoading) {
-    return <Skeleton className="h-96 rounded-card" />;
+    return <Skeleton className="rounded-card h-96" />;
   }
-  if (appointment.isError) return <ErrorState onRetry={() => void appointment.refetch()} />;
+  if (appointment.isError)
+    return <ErrorState onRetry={() => void appointment.refetch()} />;
   const apt = appointment.data;
   if (!apt || !shop.data) {
     return (
-      <EmptyState title="Agendamento não encontrado" description="Veja seus horários em Minha conta.">
+      <EmptyState
+        title="Agendamento não encontrado"
+        description="Veja seus horários em Minha conta."
+      >
         <Button asChild variant="secondary">
           <Link href="/conta/agendamentos">Ver meus agendamentos</Link>
         </Button>
@@ -44,7 +53,9 @@ export function BookingConfirmation() {
     );
   }
 
-  const chosen = (services.data ?? []).filter((s) => apt.serviceIds.includes(s.id));
+  const chosen = (services.data ?? []).filter((s) =>
+    apt.serviceIds.includes(s.id),
+  );
   const pro = professionals.data?.find((p) => p.id === apt.professionalId);
   const when = `${formatDate(apt.start, "EEEE, dd/MM")} às ${formatTime(apt.start)}`;
   const address = `${shop.data.address.street}, ${shop.data.address.district}, ${shop.data.address.city}/${shop.data.address.state}`;
@@ -54,7 +65,12 @@ export function BookingConfirmation() {
     hora: formatTime(apt.start),
   });
   const clubPlan =
-    !club.active && plans.data?.find((p) => p.active && p.benefits.some((b) => apt.serviceIds.includes(b.serviceId)));
+    !club.active &&
+    plans.data?.find(
+      (p) =>
+        p.active &&
+        p.benefits.some((b) => apt.serviceIds.includes(b.serviceId)),
+    );
 
   const downloadIcs = () => {
     const ics = buildIcs({
@@ -76,24 +92,32 @@ export function BookingConfirmation() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-start gap-2">
-        <CircleCheck className="size-10 text-success" strokeWidth={1.75} aria-hidden />
-        <h1 className="text-2xl font-semibold">{rescheduled ? "Horário remarcado" : "Horário marcado"}</h1>
+        <CircleCheck
+          className="text-success size-10"
+          strokeWidth={1.75}
+          aria-hidden
+        />
+        <h1 className="text-2xl font-semibold">
+          {rescheduled ? "Horário remarcado" : "Horário marcado"}
+        </h1>
         <p className="text-lg">
           {capitalizeFirst(when)}
           {pro && <> com {pro.name}</>}
         </p>
       </div>
-      <dl className="grid gap-3 rounded-card border border-border bg-surface p-4">
+      <dl className="rounded-card border-border bg-surface grid gap-3 border p-4">
         <div>
-          <dt className="text-sm text-text-muted">Serviços</dt>
+          <dt className="text-text-muted text-sm">Serviços</dt>
           <dd>{chosen.map((s) => s.name).join(", ")}</dd>
         </div>
         <div>
-          <dt className="text-sm text-text-muted">Valor de tabela</dt>
-          <dd className="tabular-nums">{formatBRL(apt.priceCents)} · pagamento na barbearia</dd>
+          <dt className="text-text-muted text-sm">Valor de tabela</dt>
+          <dd className="tabular-nums">
+            {formatBRL(apt.priceCents)} · pagamento na barbearia
+          </dd>
         </div>
         <div>
-          <dt className="text-sm text-text-muted">Endereço</dt>
+          <dt className="text-text-muted text-sm">Endereço</dt>
           <dd>{address}</dd>
         </div>
       </dl>
@@ -103,7 +127,11 @@ export function BookingConfirmation() {
           Adicionar ao calendário
         </Button>
         <Button asChild variant="secondary">
-          <a href={whatsappLink(shop.data.whatsapp, message)} target="_blank" rel="noopener noreferrer">
+          <a
+            href={whatsappLink(shop.data.whatsapp, message)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <MessageCircle strokeWidth={1.75} aria-hidden />
             Abrir no WhatsApp
           </a>
@@ -113,11 +141,18 @@ export function BookingConfirmation() {
         </Button>
       </div>
       {clubPlan && (
-        <aside className="flex items-start gap-3 rounded-card bg-club p-4 text-club-fg">
-          <Crown className="mt-0.5 size-5 shrink-0" strokeWidth={1.75} aria-hidden />
+        <aside className="rounded-card bg-club text-club-fg flex items-start gap-3 p-4">
+          <Crown
+            className="mt-0.5 size-5 shrink-0"
+            strokeWidth={1.75}
+            aria-hidden
+          />
           <p className="text-sm">
             No Clube {clubPlan.name}, este horário sairia por R$ 0.{" "}
-            <Link href="/clube" className="font-medium underline underline-offset-4">
+            <Link
+              href="/clube"
+              className="font-medium underline underline-offset-4"
+            >
               Conhecer os planos
             </Link>
           </p>

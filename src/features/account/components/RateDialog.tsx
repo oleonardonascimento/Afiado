@@ -39,11 +39,17 @@ export function RateDialog({ appointment, professionalName }: RateDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Como foi com {professionalName}?</DialogTitle>
-          <DialogDescription>Sua nota ajuda outros clientes e a equipe.</DialogDescription>
+          <DialogDescription>
+            Sua nota ajuda outros clientes e a equipe.
+          </DialogDescription>
         </DialogHeader>
         <fieldset className="flex flex-col gap-2">
           <legend className="mb-2 text-sm font-medium">Nota</legend>
-          <div className="flex gap-1" role="radiogroup" aria-label="Nota de 1 a 5">
+          <div
+            className="flex gap-1"
+            role="radiogroup"
+            aria-label="Nota de 1 a 5"
+          >
             {[1, 2, 3, 4, 5].map((n) => (
               <button
                 key={n}
@@ -52,10 +58,15 @@ export function RateDialog({ appointment, professionalName }: RateDialogProps) {
                 aria-checked={rating === n}
                 aria-label={`${n} ${n === 1 ? "estrela" : "estrelas"}`}
                 onClick={() => setRating(n)}
-                className="flex size-11 items-center justify-center rounded-control hover:bg-surface-2"
+                className="rounded-control hover:bg-surface-2 flex size-11 items-center justify-center"
               >
                 <Star
-                  className={cn("size-7", n <= rating ? "fill-warning text-warning" : "text-border-strong")}
+                  className={cn(
+                    "size-7",
+                    n <= rating
+                      ? "fill-warning text-warning"
+                      : "text-border-strong",
+                  )}
                   strokeWidth={1.75}
                   aria-hidden
                 />
@@ -64,7 +75,9 @@ export function RateDialog({ appointment, professionalName }: RateDialogProps) {
           </div>
         </fieldset>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`comment-${appointment.id}`}>Comentário (opcional)</Label>
+          <Label htmlFor={`comment-${appointment.id}`}>
+            Comentário (opcional)
+          </Label>
           <Textarea
             id={`comment-${appointment.id}`}
             value={comment}
@@ -90,7 +103,8 @@ export function RateDialog({ appointment, professionalName }: RateDialogProps) {
                     toast.success("Avaliação enviada. Obrigado!");
                     setOpen(false);
                   },
-                  onError: () => toast.error("Não foi possível enviar. Tente de novo."),
+                  onError: () =>
+                    toast.error("Não foi possível enviar. Tente de novo."),
                 },
               )
             }

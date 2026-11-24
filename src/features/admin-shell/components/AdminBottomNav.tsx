@@ -3,7 +3,13 @@
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { AdminNavLink } from "@/features/admin-shell/components/AdminNavLink";
 import { navForRole } from "@/features/admin-shell/nav";
 import { useStaffRole } from "@/hooks/useSession";
@@ -17,7 +23,7 @@ export function AdminBottomNav() {
   return (
     <nav
       aria-label="Painel"
-      className="fixed inset-x-0 bottom-0 z-40 flex gap-1 border-t border-border bg-surface px-2 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] lg:hidden"
+      className="border-border bg-surface fixed inset-x-0 bottom-0 z-40 flex gap-1 border-t px-2 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] lg:hidden"
     >
       {primary.map((item) => (
         <AdminNavLink key={item.href} item={item} layout="stack" />
@@ -26,7 +32,7 @@ export function AdminBottomNav() {
         <SheetTrigger asChild>
           <Button
             variant="ghost"
-            className="h-auto min-h-11 flex-1 flex-col gap-0.5 px-0 text-xs text-text-muted"
+            className="text-text-muted h-auto min-h-11 flex-1 flex-col gap-0.5 px-0 text-xs"
           >
             <Menu className="size-5" strokeWidth={1.75} aria-hidden />
             Mais

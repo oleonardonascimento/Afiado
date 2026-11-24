@@ -24,15 +24,31 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { OperationError } from "@/data/repositories";
 import { commissionForItem } from "@/domain/commission";
 import type { Order, OrderItem } from "@/domain/entities";
-import { applyClubBenefit, closeOrderProblem, orderTotals } from "@/domain/order";
+import {
+  applyClubBenefit,
+  closeOrderProblem,
+  orderTotals,
+} from "@/domain/order";
 import { remainingLabel } from "@/domain/subscription";
 import { useOpenCashSession } from "@/features/cash/hooks/useCash";
-import { useProducts, useProfessionals, useServices } from "@/features/catalog/hooks/useCatalog";
+import {
+  useProducts,
+  useProfessionals,
+  useServices,
+} from "@/features/catalog/hooks/useCatalog";
 import { useClients } from "@/features/clients/hooks/useClients";
 import { useClientClub } from "@/features/club/hooks/useClientClub";
 import { OrderItems } from "@/features/orders/components/OrderItems";
-import { OrderPayments, type PaymentDraft } from "@/features/orders/components/OrderPayments";
-import { useCancelOrder, useCloseOrder, useOrders, useUpdateOrder } from "@/features/orders/hooks/useOrders";
+import {
+  OrderPayments,
+  type PaymentDraft,
+} from "@/features/orders/components/OrderPayments";
+import {
+  useCancelOrder,
+  useCloseOrder,
+  useOrders,
+  useUpdateOrder,
+} from "@/features/orders/hooks/useOrders";
 import { useStaffMember } from "@/hooks/useSession";
 import { todayIn } from "@/lib/calendar";
 import { formatBRL, formatDate, formatTime } from "@/lib/format";
@@ -41,11 +57,16 @@ import { PAYMENT_METHOD_LABEL } from "@/lib/labels";
 export function OrderEditor({ id }: { id: string }) {
   const orders = useOrders();
   const order = orders.data?.find((o) => o.id === id);
-  if (orders.isLoading) return <Skeleton className="mx-auto h-96 max-w-4xl rounded-card" />;
-  if (orders.isError) return <ErrorState onRetry={() => void orders.refetch()} />;
+  if (orders.isLoading)
+    return <Skeleton className="rounded-card mx-auto h-96 max-w-4xl" />;
+  if (orders.isError)
+    return <ErrorState onRetry={() => void orders.refetch()} />;
   if (!order) {
     return (
-      <EmptyState title="Comanda não encontrada" description="Ela pode ter sido removida ao resetar a demonstração.">
+      <EmptyState
+        title="Comanda não encontrada"
+        description="Ela pode ter sido removida ao resetar a demonstração."
+      >
         <Button asChild variant="secondary">
           <Link href="/admin/comandas">Ver comandas</Link>
         </Button>
@@ -78,21 +99,30 @@ function OrderForm({ order }: { order: Order }) {
 
   const client = clients.data?.find((c) => c.id === order.clientId);
   const pro = professionals.data?.find((p) => p.id === order.professionalId);
-  const paid = payments.map((p) => ({ method: p.method, amountCents: p.amountCents ?? 0 }));
+  const paid = payments.map((p) => ({
+    method: p.method,
+    amountCents: p.amountCents ?? 0,
+  }));
   const draft: Order = { ...order, items, discountCents, payments: paid };
   const totals = orderTotals(draft);
   const problem = closeOrderProblem(draft, Boolean(cash.session));
-  const dirty = JSON.stringify(items) !== JSON.stringify(order.items) || discountCents !== order.discountCents;
+  const dirty =
+    JSON.stringify(items) !== JSON.stringify(order.items) ||
+    discountCents !== order.discountCents;
 
   /** Novos serviços passam pelo benefício do Clube quando o cliente é assinante. */
   const changeItems = (next: OrderItem[]) => {
     if (club.active && club.plan && club.usage) {
-      setItems(applyClubBenefit(next, club.plan, club.usage, todayIn(new Date())));
+      setItems(
+        applyClubBenefit(next, club.plan, club.usage, todayIn(new Date())),
+      );
     } else setItems(next);
   };
 
   const commissions = items.map((item) => {
-    const itemPro = professionals.data?.find((p) => p.id === item.professionalId);
+    const itemPro = professionals.data?.find(
+      (p) => p.id === item.professionalId,
+    );
     const pct =
       item.kind === "service"
         ? (services.data?.find((s) => s.id === item.refId)?.commissionPct ?? 0)
@@ -120,19 +150,29 @@ function OrderForm({ order }: { order: Order }) {
             {
               onSuccess: () =>
                 toast.success(
-                  totals.changeCents > 0 ? `Comanda fechada. Troco: ${formatBRL(totals.changeCents)}` : "Comanda fechada",
+                  totals.changeCents > 0
+                    ? `Comanda fechada. Troco: ${formatBRL(totals.changeCents)}`
+                    : "Comanda fechada",
                 ),
               onError: (e) =>
-                toast.error(e instanceof OperationError ? e.message : "Não foi possível fechar. Tente de novo."),
+                toast.error(
+                  e instanceof OperationError
+                    ? e.message
+                    : "Não foi possível fechar. Tente de novo.",
+                ),
             },
           ),
-        onError: () => toast.error("Não foi possível salvar os itens. Tente de novo."),
+        onError: () =>
+          toast.error("Não foi possível salvar os itens. Tente de novo."),
       },
     );
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
-      <Link href="/admin/comandas" className="inline-flex items-center gap-1 self-start text-sm text-text-muted hover:text-text">
+      <Link
+        href="/admin/comandas"
+        className="text-text-muted hover:text-text inline-flex items-center gap-1 self-start text-sm"
+      >
         <ArrowLeft className="size-4" strokeWidth={1.75} aria-hidden />
         Comandas
       </Link>
@@ -142,17 +182,19 @@ function OrderForm({ order }: { order: Order }) {
           <h1 className="flex items-center gap-2 text-2xl font-semibold">
             {client?.name ?? "Comanda avulsa"}
             {club.active && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-club px-2 py-0.5 text-xs font-medium text-club-fg">
+              <span className="bg-club text-club-fg inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                 <Crown className="size-3.5" strokeWidth={1.75} aria-hidden />
                 Clube
               </span>
             )}
           </h1>
           <p className="text-text-muted">
-            {pro?.name ?? "Barbeiro"} · aberta em {formatDate(order.openedAt, "dd/MM")} às {formatTime(order.openedAt)}
+            {pro?.name ?? "Barbeiro"} · aberta em{" "}
+            {formatDate(order.openedAt, "dd/MM")} às{" "}
+            {formatTime(order.openedAt)}
           </p>
           {club.active && club.plan && club.usage && (
-            <p className="text-sm text-text-muted">
+            <p className="text-text-muted text-sm">
               Plano {club.plan.name} neste período:{" "}
               {club.plan.benefits
                 .map(
@@ -164,7 +206,11 @@ function OrderForm({ order }: { order: Order }) {
           )}
         </div>
         <span className="rounded-control bg-surface-2 px-2 py-1 text-sm">
-          {order.status === "open" ? "Aberta" : order.status === "closed" ? "Fechada" : "Cancelada"}
+          {order.status === "open"
+            ? "Aberta"
+            : order.status === "closed"
+              ? "Fechada"
+              : "Cancelada"}
         </span>
       </header>
 
@@ -179,7 +225,11 @@ function OrderForm({ order }: { order: Order }) {
             onChange={changeItems}
           />
           {!readOnly && (
-            <OrderPayments payments={payments} remainingCents={totals.remainingCents} onChange={setPayments} />
+            <OrderPayments
+              payments={payments}
+              remainingCents={totals.remainingCents}
+              onChange={setPayments}
+            />
           )}
           {readOnly && order.payments.length > 0 && (
             <section className="flex flex-col gap-2">
@@ -188,7 +238,9 @@ function OrderForm({ order }: { order: Order }) {
                 {order.payments.map((p, i) => (
                   <li key={`${p.method}-${i}`} className="flex justify-between">
                     <span>{PAYMENT_METHOD_LABEL[p.method]}</span>
-                    <span className="tabular-nums">{formatBRL(p.amountCents)}</span>
+                    <span className="tabular-nums">
+                      {formatBRL(p.amountCents)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -196,14 +248,24 @@ function OrderForm({ order }: { order: Order }) {
           )}
         </div>
 
-        <aside className="flex flex-col gap-4 self-start rounded-card border border-border bg-surface p-4 lg:sticky lg:top-20">
+        <aside className="rounded-card border-border bg-surface flex flex-col gap-4 self-start border p-4 lg:sticky lg:top-20">
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="Subtotal" value={formatBRL(totals.grossCents)} />
-            {totals.clubCents > 0 && <Row label="Clube" value={`−${formatBRL(totals.clubCents)}`} />}
-            {totals.itemDiscountCents > 0 && <Row label="Descontos nos itens" value={`−${formatBRL(totals.itemDiscountCents)}`} />}
+            {totals.clubCents > 0 && (
+              <Row label="Clube" value={`−${formatBRL(totals.clubCents)}`} />
+            )}
+            {totals.itemDiscountCents > 0 && (
+              <Row
+                label="Descontos nos itens"
+                value={`−${formatBRL(totals.itemDiscountCents)}`}
+              />
+            )}
             {!readOnly ? (
               <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="order-discount" className="font-normal text-text-muted">
+                <Label
+                  htmlFor="order-discount"
+                  className="text-text-muted font-normal"
+                >
                   Desconto no total
                 </Label>
                 <MoneyInput
@@ -214,44 +276,71 @@ function OrderForm({ order }: { order: Order }) {
                 />
               </div>
             ) : (
-              totals.orderDiscountCents > 0 && <Row label="Desconto no total" value={`−${formatBRL(totals.orderDiscountCents)}`} />
+              totals.orderDiscountCents > 0 && (
+                <Row
+                  label="Desconto no total"
+                  value={`−${formatBRL(totals.orderDiscountCents)}`}
+                />
+              )
             )}
-            <div className="flex justify-between border-t border-border pt-2 text-lg font-semibold">
+            <div className="border-border flex justify-between border-t pt-2 text-lg font-semibold">
               <dt>Total</dt>
               <dd className="tabular-nums">{formatBRL(totals.totalCents)}</dd>
             </div>
             {!readOnly && (
               <>
                 <Row label="Recebido" value={formatBRL(totals.paidCents)} />
-                {totals.remainingCents > 0 && <Row label="Falta" value={formatBRL(totals.remainingCents)} />}
-                {totals.changeCents > 0 && <Row label="Troco" value={formatBRL(totals.changeCents)} strong />}
+                {totals.remainingCents > 0 && (
+                  <Row label="Falta" value={formatBRL(totals.remainingCents)} />
+                )}
+                {totals.changeCents > 0 && (
+                  <Row
+                    label="Troco"
+                    value={formatBRL(totals.changeCents)}
+                    strong
+                  />
+                )}
               </>
             )}
           </dl>
 
           {role === "owner" && (
-            <p className="border-t border-border pt-3 text-sm text-text-muted">
+            <p className="border-border text-text-muted border-t pt-3 text-sm">
               Comissão de {pro?.name.split(" ")[0] ?? "barbeiro"}:{" "}
-              <span className="text-text tabular-nums">{formatBRL(commissionTotal)}</span>
+              <span className="text-text tabular-nums">
+                {formatBRL(commissionTotal)}
+              </span>
             </p>
           )}
 
           {!readOnly && (
             <div className="flex flex-col gap-2">
               {problem && (
-                <p className="text-sm text-text-muted" role="status">
+                <p className="text-text-muted text-sm" role="status">
                   {problem}{" "}
                   {!cash.session && (
-                    <Link href="/admin/caixa" className="text-text underline underline-offset-4">
+                    <Link
+                      href="/admin/caixa"
+                      className="text-text underline underline-offset-4"
+                    >
                       Ir para o caixa
                     </Link>
                   )}
                 </p>
               )}
-              <Button disabled={Boolean(problem)} loading={close.isPending} onClick={closeOrder}>
+              <Button
+                disabled={Boolean(problem)}
+                loading={close.isPending}
+                onClick={closeOrder}
+              >
                 Fechar comanda
               </Button>
-              <Button variant="secondary" disabled={!dirty} loading={update.isPending && !close.isPending} onClick={save}>
+              <Button
+                variant="secondary"
+                disabled={!dirty}
+                loading={update.isPending && !close.isPending}
+                onClick={save}
+              >
                 Salvar sem fechar
               </Button>
               <AlertDialog>
@@ -262,7 +351,8 @@ function OrderForm({ order }: { order: Order }) {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Cancelar esta comanda?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Nada é cobrado e nenhuma comissão é gerada. Use quando a comanda foi aberta por engano.
+                      Nada é cobrado e nenhuma comissão é gerada. Use quando a
+                      comanda foi aberta por engano.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -272,7 +362,10 @@ function OrderForm({ order }: { order: Order }) {
                       onClick={() =>
                         cancel.mutate(order.id, {
                           onSuccess: () => toast.success("Comanda cancelada"),
-                          onError: () => toast.error("Não foi possível cancelar. Tente de novo."),
+                          onError: () =>
+                            toast.error(
+                              "Não foi possível cancelar. Tente de novo.",
+                            ),
                         })
                       }
                     >
@@ -289,11 +382,21 @@ function OrderForm({ order }: { order: Order }) {
   );
 }
 
-function Row({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+function Row({
+  label,
+  value,
+  strong = false,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
   return (
     <div className="flex justify-between">
       <dt className="text-text-muted">{label}</dt>
-      <dd className={strong ? "font-semibold tabular-nums" : "tabular-nums"}>{value}</dd>
+      <dd className={strong ? "font-semibold tabular-nums" : "tabular-nums"}>
+        {value}
+      </dd>
     </div>
   );
 }

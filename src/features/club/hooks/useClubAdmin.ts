@@ -7,23 +7,35 @@ import { useRepoMutation } from "@/hooks/useRepoMutation";
 import { catalogKeys, clubKeys } from "@/lib/query-keys";
 
 export function useSubscriptions() {
-  return useQuery({ queryKey: clubKeys.subscriptions, queryFn: () => repos.subscriptions.list() });
+  return useQuery({
+    queryKey: clubKeys.subscriptions,
+    queryFn: () => repos.subscriptions.list(),
+  });
 }
 
 export function useCharges() {
-  return useQuery({ queryKey: clubKeys.charges, queryFn: () => repos.charges.list() });
+  return useQuery({
+    queryKey: clubKeys.charges,
+    queryFn: () => repos.charges.list(),
+  });
 }
 
 export function useSubscribe() {
   return useRepoMutation(
-    (input: { clientId: string; planId: string; paymentMethod: "pix" | "card" }) =>
-      repos.subscriptions.subscribe(input),
+    (input: {
+      clientId: string;
+      planId: string;
+      paymentMethod: "pix" | "card";
+    }) => repos.subscriptions.subscribe(input),
     [clubKeys.subscriptions, clubKeys.charges],
   );
 }
 
 export function useCancelSubscription() {
-  return useRepoMutation((id: string) => repos.subscriptions.cancel(id), [clubKeys.subscriptions]);
+  return useRepoMutation(
+    (id: string) => repos.subscriptions.cancel(id),
+    [clubKeys.subscriptions],
+  );
 }
 
 export function useSavePlan() {

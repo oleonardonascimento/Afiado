@@ -13,11 +13,20 @@ type PersonAvatarProps = {
 const SIZES = { sm: "size-9", md: "size-12", lg: "size-20" } as const;
 const TEXT = { sm: "text-sm", md: "text-base", lg: "text-2xl" } as const;
 
-export function PersonAvatar({ name, photoUrl, size = "md", className }: PersonAvatarProps) {
+export function PersonAvatar({
+  name,
+  photoUrl,
+  size = "md",
+  className,
+}: PersonAvatarProps) {
   return (
     <Avatar className={cn(SIZES[size], className)}>
       {photoUrl && <AvatarImage src={photoUrl} alt="" />}
-      <AvatarFallback className={cn("bg-club font-semibold text-club-fg", TEXT[size])}>{initials(name)}</AvatarFallback>
+      <AvatarFallback
+        className={cn("bg-club text-club-fg font-semibold", TEXT[size])}
+      >
+        {initials(name)}
+      </AvatarFallback>
     </Avatar>
   );
 }

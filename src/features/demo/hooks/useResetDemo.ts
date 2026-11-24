@@ -12,6 +12,7 @@ export function useResetDemo() {
       await queryClient.resetQueries();
       toast.success("Dados de demonstração restaurados");
     },
-    onError: () => toast.error("Não foi possível restaurar os dados. Tente de novo."),
+    onError: () =>
+      toast.error("Não foi possível restaurar os dados. Tente de novo."),
   });
 }

@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ratingSummary } from "@/domain/shop";
 import { useBookingAvailability } from "@/features/booking/hooks/useBookingAvailability";
-import { useProfessionals, useReviews, useServices } from "@/features/catalog/hooks/useCatalog";
+import {
+  useProfessionals,
+  useReviews,
+  useServices,
+} from "@/features/catalog/hooks/useCatalog";
 import { middayIso } from "@/lib/calendar";
 import { formatBRL, formatDate, formatTime } from "@/lib/format";
 import { capitalizeFirst, durationLabel } from "@/lib/labels";
@@ -22,7 +26,9 @@ export function BarberProfile({ id }: { id: string }) {
   const professionals = useProfessionals();
   const services = useServices();
   const reviews = useReviews();
-  const pro = professionals.data?.find((p) => p.id === id && p.active && p.serviceIds.length > 0);
+  const pro = professionals.data?.find(
+    (p) => p.id === id && p.active && p.serviceIds.length > 0,
+  );
   const mainService = pro?.serviceIds[0];
   const availability = useBookingAvailability({
     serviceIds: mainService ? [mainService] : [],
@@ -34,7 +40,7 @@ export function BarberProfile({ id }: { id: string }) {
       <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-8">
         <Skeleton className="size-20 rounded-full" />
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-24 rounded-card" />
+        <Skeleton className="rounded-card h-24" />
       </div>
     );
   }
@@ -48,7 +54,10 @@ export function BarberProfile({ id }: { id: string }) {
   if (!pro) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8">
-        <EmptyState title="Profissional não encontrado" description="Esse perfil não existe ou não atende mais por aqui.">
+        <EmptyState
+          title="Profissional não encontrado"
+          description="Esse perfil não existe ou não atende mais por aqui."
+        >
           <Button asChild variant="secondary">
             <Link href="/#equipe">Ver a equipe</Link>
           </Button>
@@ -62,8 +71,12 @@ export function BarberProfile({ id }: { id: string }) {
     .filter((r) => r.professionalId === pro.id && r.comment)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, MAX_REVIEWS);
-  const proServices = (services.data ?? []).filter((s) => pro.serviceIds.includes(s.id) && s.active);
-  const nextDays = availability.days.filter((d) => d.slots.length > 0).slice(0, MAX_DAYS);
+  const proServices = (services.data ?? []).filter(
+    (s) => pro.serviceIds.includes(s.id) && s.active,
+  );
+  const nextDays = availability.days
+    .filter((d) => d.slots.length > 0)
+    .slice(0, MAX_DAYS);
   const mainServiceName = proServices.find((s) => s.id === mainService)?.name;
 
   return (
@@ -89,18 +102,29 @@ export function BarberProfile({ id }: { id: string }) {
         <h2 id="slots-title" className="text-lg font-semibold">
           Próximos horários livres
         </h2>
-        {mainServiceName && <p className="text-sm text-text-muted">Para {mainServiceName.toLowerCase()}.</p>}
+        {mainServiceName && (
+          <p className="text-text-muted text-sm">
+            Para {mainServiceName.toLowerCase()}.
+          </p>
+        )}
         {availability.isLoading ? (
-          <Skeleton className="h-12 rounded-card" />
+          <Skeleton className="rounded-card h-12" />
         ) : availability.isError ? (
           <ErrorState onRetry={availability.refetch} />
         ) : nextDays.length === 0 ? (
-          <p className="text-text-muted">Sem horários livres nos próximos 14 dias.</p>
+          <p className="text-text-muted">
+            Sem horários livres nos próximos 14 dias.
+          </p>
         ) : (
           <dl className="flex flex-col gap-2">
             {nextDays.map((day) => (
               <div key={day.date} className="flex flex-wrap gap-x-2">
-                <dt className="font-medium">{capitalizeFirst(formatDate(middayIso(day.date), "EEEE, dd/MM"))}:</dt>
+                <dt className="font-medium">
+                  {capitalizeFirst(
+                    formatDate(middayIso(day.date), "EEEE, dd/MM"),
+                  )}
+                  :
+                </dt>
                 <dd className="text-text-muted tabular-nums">
                   {day.slots
                     .slice(0, MAX_SLOTS)
@@ -111,9 +135,16 @@ export function BarberProfile({ id }: { id: string }) {
             ))}
           </dl>
         )}
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface p-4 md:static md:border-0 md:bg-transparent md:p-0">
-          <Button asChild variant="brand" size="lg" className="w-full md:w-auto">
-            <Link href={`/agendar?profissional=${pro.id}`}>Agendar com {pro.name}</Link>
+        <div className="border-border bg-surface fixed inset-x-0 bottom-0 z-20 border-t p-4 md:static md:border-0 md:bg-transparent md:p-0">
+          <Button
+            asChild
+            variant="brand"
+            size="lg"
+            className="w-full md:w-auto"
+          >
+            <Link href={`/agendar?profissional=${pro.id}`}>
+              Agendar com {pro.name}
+            </Link>
           </Button>
         </div>
       </section>
@@ -122,12 +153,17 @@ export function BarberProfile({ id }: { id: string }) {
         <h2 id="services-title" className="text-lg font-semibold">
           Serviços
         </h2>
-        <ul className="divide-y divide-border rounded-card border border-border bg-surface">
+        <ul className="divide-border rounded-card border-border bg-surface divide-y border">
           {proServices.map((s) => (
-            <li key={s.id} className="flex items-center justify-between gap-3 px-4 py-3">
+            <li
+              key={s.id}
+              className="flex items-center justify-between gap-3 px-4 py-3"
+            >
               <span>
                 {s.name}
-                <span className="block text-sm text-text-muted">{durationLabel(s.durationMinutes)}</span>
+                <span className="text-text-muted block text-sm">
+                  {durationLabel(s.durationMinutes)}
+                </span>
               </span>
               <span className="tabular-nums">{formatBRL(s.priceCents)}</span>
             </li>
@@ -139,14 +175,21 @@ export function BarberProfile({ id }: { id: string }) {
         <h2 id="reviews-title" className="text-lg font-semibold">
           Avaliações
         </h2>
-        <p className="text-sm text-text-muted">Avaliações de exemplo, geradas para demonstração.</p>
+        <p className="text-text-muted text-sm">
+          Avaliações de exemplo, geradas para demonstração.
+        </p>
         {proReviews.length === 0 ? (
-          <p className="text-text-muted">Ainda sem avaliações com comentário.</p>
+          <p className="text-text-muted">
+            Ainda sem avaliações com comentário.
+          </p>
         ) : (
           <ul className="flex flex-col gap-3">
             {proReviews.map((r) => (
-              <li key={r.id} className="flex flex-col gap-1 border-b border-border pb-3 last:border-0">
-                <span className="flex items-center gap-2 text-sm text-text-muted">
+              <li
+                key={r.id}
+                className="border-border flex flex-col gap-1 border-b pb-3 last:border-0"
+              >
+                <span className="text-text-muted flex items-center gap-2 text-sm">
                   <Stars value={r.rating} />
                   {formatDate(r.createdAt, "dd/MM/yyyy")}
                 </span>

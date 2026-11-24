@@ -18,7 +18,12 @@ export function useBookingQuote(serviceIds: string[], date: string | null) {
   const chosen = (services.data ?? []).filter((s) => serviceIds.includes(s.id));
   const covered =
     club.active && club.plan && club.usage
-      ? coveredServiceIds(club.plan, club.usage, serviceIds, date ?? todayIn(new Date()))
+      ? coveredServiceIds(
+          club.plan,
+          club.usage,
+          serviceIds,
+          date ?? todayIn(new Date()),
+        )
       : [];
   return {
     chosen,

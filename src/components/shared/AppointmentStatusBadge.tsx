@@ -2,12 +2,23 @@
  * Status do agendamento com cor + ícone + texto (PRD §8.2 — a cor nunca é o único sinal).
  * Usado na agenda, na ficha do cliente e no dashboard.
  */
-import { Calendar, Check, CheckCheck, Scissors, UserX, X, type LucideIcon } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  CheckCheck,
+  Scissors,
+  UserX,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import type { AppointmentStatus } from "@/domain/entities";
 import { cn } from "@/lib/cn";
 import { APPOINTMENT_STATUS_LABEL } from "@/lib/labels";
 
-export const STATUS_STYLE: Record<AppointmentStatus, { icon: LucideIcon; block: string; badge: string }> = {
+export const STATUS_STYLE: Record<
+  AppointmentStatus,
+  { icon: LucideIcon; block: string; badge: string }
+> = {
   scheduled: {
     icon: Calendar,
     block: "border border-border-strong bg-surface",
@@ -40,12 +51,18 @@ export const STATUS_STYLE: Record<AppointmentStatus, { icon: LucideIcon; block: 
   },
 };
 
-export function AppointmentStatusBadge({ status, className }: { status: AppointmentStatus; className?: string }) {
+export function AppointmentStatusBadge({
+  status,
+  className,
+}: {
+  status: AppointmentStatus;
+  className?: string;
+}) {
   const { icon: Icon, badge } = STATUS_STYLE[status];
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-control px-2 py-0.5 text-xs font-medium whitespace-nowrap",
+        "rounded-control inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium whitespace-nowrap",
         badge,
         className,
       )}

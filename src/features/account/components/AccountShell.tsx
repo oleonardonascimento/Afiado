@@ -34,13 +34,14 @@ export function AccountShell({ children }: AccountShellProps) {
   const { client, isLoading, isError } = useCurrentClient();
 
   useEffect(() => {
-    if (!isLoading && !isError && !client) router.replace(`/entrar?next=${encodeURIComponent(pathname)}`);
+    if (!isLoading && !isError && !client)
+      router.replace(`/entrar?next=${encodeURIComponent(pathname)}`);
   }, [client, isLoading, isError, pathname, router]);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8">
       <nav aria-label="Minha conta" className="-mx-4 overflow-x-auto px-4">
-        <ul className="flex gap-1 border-b border-border">
+        <ul className="border-border flex gap-1 border-b">
           {TABS.map((tab) => {
             const active = pathname === tab.href;
             return (
@@ -50,7 +51,9 @@ export function AccountShell({ children }: AccountShellProps) {
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "-mb-px flex min-h-11 items-center border-b-2 px-3 text-sm whitespace-nowrap",
-                    active ? "border-primary font-medium text-text" : "border-transparent text-text-muted hover:text-text",
+                    active
+                      ? "border-primary text-text font-medium"
+                      : "text-text-muted hover:text-text border-transparent",
                   )}
                 >
                   {tab.label}
@@ -63,11 +66,13 @@ export function AccountShell({ children }: AccountShellProps) {
       {isError ? (
         <ErrorState />
       ) : client ? (
-        <AccountClientContext.Provider value={client}>{children}</AccountClientContext.Provider>
+        <AccountClientContext.Provider value={client}>
+          {children}
+        </AccountClientContext.Provider>
       ) : (
         <div className="flex flex-col gap-3">
           <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-32 rounded-card" />
+          <Skeleton className="rounded-card h-32" />
         </div>
       )}
     </div>

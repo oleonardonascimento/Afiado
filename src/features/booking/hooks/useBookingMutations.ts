@@ -10,16 +10,25 @@ export function useBookAppointment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: BookingRequest) => repos.appointments.book(request),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: appointmentKeys.all }),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.all }),
   });
 }
 
 export function useRescheduleAppointment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, start, professionalId }: { id: string; start: string; professionalId: string | null }) =>
-      repos.appointments.reschedule(id, { start, professionalId }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: appointmentKeys.all }),
+    mutationFn: ({
+      id,
+      start,
+      professionalId,
+    }: {
+      id: string;
+      start: string;
+      professionalId: string | null;
+    }) => repos.appointments.reschedule(id, { start, professionalId }),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.all }),
   });
 }
 
@@ -37,8 +46,15 @@ export function useCancelAppointment() {
 export function useJoinWaitlist() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (entry: Omit<WaitlistEntry, "id" | "createdAt" | "notifiedAt">) =>
-      repos.waitlist.create({ ...entry, createdAt: new Date().toISOString(), notifiedAt: null }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: waitlistKeys.all }),
+    mutationFn: (
+      entry: Omit<WaitlistEntry, "id" | "createdAt" | "notifiedAt">,
+    ) =>
+      repos.waitlist.create({
+        ...entry,
+        createdAt: new Date().toISOString(),
+        notifiedAt: null,
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: waitlistKeys.all }),
   });
 }

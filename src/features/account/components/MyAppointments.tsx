@@ -9,7 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccountClient } from "@/features/account/components/AccountShell";
 import { AppointmentItem } from "@/features/account/components/AppointmentItem";
 import { useClientAppointments } from "@/features/account/hooks/useMyAppointments";
-import { useProfessionals, useReviews, useServices, useShop } from "@/features/catalog/hooks/useCatalog";
+import {
+  useProfessionals,
+  useReviews,
+  useServices,
+  useShop,
+} from "@/features/catalog/hooks/useCatalog";
 
 const UPCOMING = new Set(["scheduled", "confirmed", "in_service"]);
 
@@ -23,13 +28,18 @@ export function MyAppointments() {
   const shop = useShop();
 
   if (appointments.isLoading || services.isLoading) {
-    return <Skeleton className="h-40 rounded-card" />;
+    return <Skeleton className="rounded-card h-40" />;
   }
-  if (appointments.isError) return <ErrorState onRetry={() => void appointments.refetch()} />;
+  if (appointments.isError)
+    return <ErrorState onRetry={() => void appointments.refetch()} />;
 
   const list = appointments.data ?? [];
-  const upcoming = list.filter((a) => UPCOMING.has(a.status)).sort((a, b) => a.start.localeCompare(b.start));
-  const history = list.filter((a) => !UPCOMING.has(a.status)).sort((a, b) => b.start.localeCompare(a.start));
+  const upcoming = list
+    .filter((a) => UPCOMING.has(a.status))
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const history = list
+    .filter((a) => !UPCOMING.has(a.status))
+    .sort((a, b) => b.start.localeCompare(a.start));
   const reviewed = new Set((reviews.data ?? []).map((r) => r.appointmentId));
 
   const render = (items: typeof list, empty: React.ReactNode) =>
@@ -42,7 +52,9 @@ export function MyAppointments() {
             <AppointmentItem
               appointment={a}
               services={services.data ?? []}
-              professional={professionals.data?.find((p) => p.id === a.professionalId)}
+              professional={professionals.data?.find(
+                (p) => p.id === a.professionalId,
+              )}
               deadlineHours={shop.data?.booking.cancelDeadlineHours ?? 3}
               reviewed={reviewed.has(a.id)}
             />
@@ -76,7 +88,10 @@ export function MyAppointments() {
         <TabsContent value="history" className="pt-4">
           {render(
             history,
-            <EmptyState title="Ainda sem histórico" description="Seus atendimentos concluídos e cancelados aparecem aqui." />,
+            <EmptyState
+              title="Ainda sem histórico"
+              description="Seus atendimentos concluídos e cancelados aparecem aqui."
+            />,
           )}
         </TabsContent>
       </Tabs>

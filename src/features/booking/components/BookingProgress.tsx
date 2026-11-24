@@ -13,16 +13,20 @@ type BookingProgressProps = {
 };
 
 export function BookingProgress({ steps, current }: BookingProgressProps) {
-  const index = Math.max(0, steps.findIndex((s) => s.id === current));
+  const index = Math.max(
+    0,
+    steps.findIndex((s) => s.id === current),
+  );
   const label = steps[index]?.label ?? "";
   const pct = ((index + 1) / steps.length) * 100;
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm text-text-muted">
-        Passo {index + 1} de {steps.length} · <span className="font-medium text-text">{label}</span>
+      <p className="text-text-muted text-sm">
+        Passo {index + 1} de {steps.length} ·{" "}
+        <span className="text-text font-medium">{label}</span>
       </p>
       <div
-        className="h-2 overflow-hidden rounded-full bg-surface-2"
+        className="bg-surface-2 h-2 overflow-hidden rounded-full"
         role="progressbar"
         aria-label="Progresso do agendamento"
         aria-valuemin={1}
@@ -30,7 +34,10 @@ export function BookingProgress({ steps, current }: BookingProgressProps) {
         aria-valuenow={index + 1}
         aria-valuetext={`Passo ${index + 1} de ${steps.length}: ${label}`}
       >
-        <div className="h-full transition-[width] duration-200 ease-out" style={{ width: `${pct}%` }}>
+        <div
+          className="h-full transition-[width] duration-200 ease-out"
+          style={{ width: `${pct}%` }}
+        >
           <PoleStripe key={current} animated className="h-full" />
         </div>
       </div>

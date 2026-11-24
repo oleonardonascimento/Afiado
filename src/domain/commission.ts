@@ -35,3 +35,37 @@ export function commissionForItem(
     amountCents: Math.round((baseCents * pct) / 100),
   };
 }
+
+export type CommissionSummary = {
+  professionalId: string;
+  serviceCents: number;
+  productCents: number;
+  clubCents: number;
+  totalCents: number;
+  paidCents: number;
+  toPayCents: number;
+};
+
+/** Resumo por barbeiro: serviços, produtos, Clube, total, pago e a pagar. */
+export function commissionSummary(commissions: Commission[]): CommissionSummary[] {
+  const map = new Map<string, CommissionSummary>();
+  for (const c of commissions) {
+    const row = map.get(c.professionalId) ?? {
+      professionalId: c.professionalId,
+      serviceCents: 0,
+      productCents: 0,
+      clubCents: 0,
+      totalCents: 0,
+      paidCents: 0,
+      toPayCents: 0,
+    };
+    if (c.kind === "service") row.serviceCents += c.amountCents;
+    else if (c.kind === "product") row.productCents += c.amountCents;
+    else row.clubCents += c.amountCents;
+    row.totalCents += c.amountCents;
+    if (c.paidAt) row.paidCents += c.amountCents;
+    else row.toPayCents += c.amountCents;
+    map.set(c.professionalId, row);
+  }
+  return [...map.values()];
+}

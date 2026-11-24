@@ -20,8 +20,15 @@ import { DateTimeStep } from "@/features/booking/components/DateTimeStep";
 import { ProfessionalStep } from "@/features/booking/components/ProfessionalStep";
 import { ReviewStep } from "@/features/booking/components/ReviewStep";
 import { ServicesStep } from "@/features/booking/components/ServicesStep";
-import { BOOKING_STEPS, useBookingStore, type BookingStep } from "@/features/booking/booking-store";
-import { useBookAppointment, useRescheduleAppointment } from "@/features/booking/hooks/useBookingMutations";
+import {
+  BOOKING_STEPS,
+  useBookingStore,
+  type BookingStep,
+} from "@/features/booking/booking-store";
+import {
+  useBookAppointment,
+  useRescheduleAppointment,
+} from "@/features/booking/hooks/useBookingMutations";
 import { useBookingQuote } from "@/features/booking/hooks/useBookingQuote";
 
 export function BookingFlow() {
@@ -45,7 +52,10 @@ export function BookingFlow() {
       serviceIds,
       professionalId: professional ?? undefined,
       rescheduleId,
-      step: rescheduleId || (serviceIds.length > 0 && professional) ? "datetime" : "services",
+      step:
+        rescheduleId || (serviceIds.length > 0 && professional)
+          ? "datetime"
+          : "services",
     });
   }, [paramKey]);
 
@@ -60,15 +70,23 @@ export function BookingFlow() {
     if (!store.slot || !client) return;
     const onError = (error: Error) => {
       if (error instanceof SlotTakenError) {
-        toast.error("Esse horário acabou de ser ocupado. Escolha outro horário abaixo.");
+        toast.error(
+          "Esse horário acabou de ser ocupado. Escolha outro horário abaixo.",
+        );
         store.goTo("datetime");
       } else {
-        toast.error("Não foi possível confirmar. Verifique sua conexão e tente de novo.");
+        toast.error(
+          "Não foi possível confirmar. Verifique sua conexão e tente de novo.",
+        );
       }
     };
     if (store.rescheduleId) {
       reschedule.mutate(
-        { id: store.rescheduleId, start: store.slot.start, professionalId: store.slot.professionalId },
+        {
+          id: store.rescheduleId,
+          start: store.slot.start,
+          professionalId: store.slot.professionalId,
+        },
         {
           onSuccess: (apt) => {
             store.start({});
@@ -99,7 +117,15 @@ export function BookingFlow() {
   };
 
   const stepView: Record<BookingStep, React.ReactNode> = {
-    services: <ServicesStep clubServiceIds={quote.club.active ? (quote.club.plan?.benefits.map((b) => b.serviceId) ?? []) : []} />,
+    services: (
+      <ServicesStep
+        clubServiceIds={
+          quote.club.active
+            ? (quote.club.plan?.benefits.map((b) => b.serviceId) ?? [])
+            : []
+        }
+      />
+    ),
     professional: <ProfessionalStep onChosen={() => go(1)} />,
     datetime: <DateTimeStep onChosen={() => go(1)} />,
     identify: (
@@ -118,18 +144,28 @@ export function BookingFlow() {
       onClick: () => go(1),
     },
     review: {
-      label: store.rescheduleId ? "Confirmar remarcação" : "Confirmar agendamento",
+      label: store.rescheduleId
+        ? "Confirmar remarcação"
+        : "Confirmar agendamento",
       disabled: !store.slot || !client,
       onClick: confirm,
     },
   } as const;
-  const action = store.step === "services" || store.step === "review" ? bar[store.step] : null;
+  const action =
+    store.step === "services" || store.step === "review"
+      ? bar[store.step]
+      : null;
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 pt-6 pb-40">
       <div className="flex items-center gap-2">
         {index > 0 && (
-          <Button variant="ghost" size="icon" onClick={() => go(-1)} aria-label="Voltar ao passo anterior">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => go(-1)}
+            aria-label="Voltar ao passo anterior"
+          >
             <ArrowLeft strokeWidth={1.75} aria-hidden />
           </Button>
         )}

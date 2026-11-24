@@ -10,7 +10,13 @@ import { cn } from "@/lib/cn";
 import { formatBRL } from "@/lib/format";
 import { SERVICE_CATEGORY_LABEL, durationLabel } from "@/lib/labels";
 
-const ORDER: ServiceCategory[] = ["corte", "combo", "barba", "tratamento", "outros"];
+const ORDER: ServiceCategory[] = [
+  "corte",
+  "combo",
+  "barba",
+  "tratamento",
+  "outros",
+];
 
 type ServicesStepProps = { clubServiceIds: string[] };
 
@@ -24,7 +30,7 @@ export function ServicesStep({ clubServiceIds }: ServicesStepProps) {
     return (
       <div className="flex flex-col gap-2">
         {[1, 2, 3, 4, 5].map((n) => (
-          <Skeleton key={n} className="h-16 rounded-card" />
+          <Skeleton key={n} className="rounded-card h-16" />
         ))}
       </div>
     );
@@ -41,8 +47,15 @@ export function ServicesStep({ clubServiceIds }: ServicesStepProps) {
         const list = bookable.filter((s) => s.category === category);
         if (list.length === 0) return null;
         return (
-          <section key={category} aria-labelledby={`cat-${category}`} className="flex flex-col gap-2">
-            <h3 id={`cat-${category}`} className="text-sm font-medium text-text-muted">
+          <section
+            key={category}
+            aria-labelledby={`cat-${category}`}
+            className="flex flex-col gap-2"
+          >
+            <h3
+              id={`cat-${category}`}
+              className="text-text-muted text-sm font-medium"
+            >
               {SERVICE_CATEGORY_LABEL[category]}
             </h3>
             <ul className="flex flex-col gap-2">
@@ -82,34 +95,44 @@ function ServiceOption({
       aria-checked={checked}
       onClick={onToggle}
       className={cn(
-        "flex w-full items-center gap-3 rounded-card border bg-surface p-3 text-left transition-colors duration-150",
-        checked ? "border-primary ring-1 ring-primary" : "border-border-strong hover:bg-surface-2",
+        "rounded-card bg-surface flex w-full items-center gap-3 border p-3 text-left transition-colors duration-150",
+        checked
+          ? "border-primary ring-primary ring-1"
+          : "border-border-strong hover:bg-surface-2",
       )}
     >
       <span
         aria-hidden
         className={cn(
-          "flex size-5 shrink-0 items-center justify-center rounded-control border",
-          checked ? "border-primary bg-primary text-primary-fg" : "border-border-strong",
+          "rounded-control flex size-5 shrink-0 items-center justify-center border",
+          checked
+            ? "border-primary bg-primary text-primary-fg"
+            : "border-border-strong",
         )}
       >
         {checked && <Check className="size-4" strokeWidth={2} />}
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="font-medium">{service.name}</span>
-        <span className="text-sm text-text-muted tabular-nums">{durationLabel(service.durationMinutes)}</span>
+        <span className="text-text-muted text-sm tabular-nums">
+          {durationLabel(service.durationMinutes)}
+        </span>
       </span>
       <span className="flex flex-col items-end">
         {inClub ? (
           <>
-            <span className="text-sm text-text-muted line-through tabular-nums">{formatBRL(service.priceCents)}</span>
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-club-fg">
+            <span className="text-text-muted text-sm tabular-nums line-through">
+              {formatBRL(service.priceCents)}
+            </span>
+            <span className="text-club-fg inline-flex items-center gap-1 text-sm font-medium">
               <Crown className="size-3.5" strokeWidth={1.75} aria-hidden />
               R$ 0 pelo Clube
             </span>
           </>
         ) : (
-          <span className="font-medium tabular-nums">{formatBRL(service.priceCents)}</span>
+          <span className="font-medium tabular-nums">
+            {formatBRL(service.priceCents)}
+          </span>
         )}
       </span>
     </button>

@@ -6,9 +6,15 @@ import { useRepoMutation } from "@/hooks/useRepoMutation";
 import { commissionKeys } from "@/lib/query-keys";
 
 export function useCommissions() {
-  return useQuery({ queryKey: commissionKeys.all, queryFn: () => repos.commissions.list() });
+  return useQuery({
+    queryKey: commissionKeys.all,
+    queryFn: () => repos.commissions.list(),
+  });
 }
 
 export function useMarkCommissionsPaid() {
-  return useRepoMutation((ids: string[]) => repos.commissions.markPaid(ids), [commissionKeys.all]);
+  return useRepoMutation(
+    (ids: string[]) => repos.commissions.markPaid(ids),
+    [commissionKeys.all],
+  );
 }

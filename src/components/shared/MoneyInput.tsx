@@ -10,22 +10,34 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
 import { centsToInput, parseBRL } from "@/lib/format";
 
-type MoneyInputProps = Omit<React.ComponentProps<"input">, "value" | "onChange" | "type"> & {
+type MoneyInputProps = Omit<
+  React.ComponentProps<"input">,
+  "value" | "onChange" | "type"
+> & {
   value: number | null;
   onChange: (cents: number | null) => void;
 };
 
-export function MoneyInput({ value, onChange, className, ...props }: MoneyInputProps) {
+export function MoneyInput({
+  value,
+  onChange,
+  className,
+  ...props
+}: MoneyInputProps) {
   const [text, setText] = useState(value === null ? "" : centsToInput(value));
   const [lastValue, setLastValue] = useState(value);
   // Valor mudou por fora (ex.: "preencher com o esperado"): reflete no texto.
   if (value !== lastValue) {
     setLastValue(value);
-    if (value !== parseBRL(text)) setText(value === null ? "" : centsToInput(value));
+    if (value !== parseBRL(text))
+      setText(value === null ? "" : centsToInput(value));
   }
   return (
     <div className={cn("relative", className)}>
-      <span aria-hidden className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-text-muted">
+      <span
+        aria-hidden
+        className="text-text-muted pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+      >
         R$
       </span>
       <Input

@@ -5,9 +5,22 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Client } from "@/domain/entities";
 import { useProfessionals } from "@/features/catalog/hooks/useCatalog";
 import { ClientPicker } from "@/features/clients/components/ClientPicker";
@@ -19,16 +32,22 @@ export function WalkInDialog({ onClose }: { onClose: () => void }) {
   const professionals = useProfessionals();
   const { role, staff } = useStaffMember();
   const open = useOpenWalkIn();
-  const team = (professionals.data ?? []).filter((p) => p.active && p.serviceIds.length > 0);
+  const team = (professionals.data ?? []).filter(
+    (p) => p.active && p.serviceIds.length > 0,
+  );
   const [client, setClient] = useState<Client | null>(null);
-  const [professionalId, setProfessionalId] = useState(role === "barber" ? (staff?.id ?? "") : "");
+  const [professionalId, setProfessionalId] = useState(
+    role === "barber" ? (staff?.id ?? "") : "",
+  );
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Nova comanda</DialogTitle>
-          <DialogDescription>Para venda de produto ou atendimento sem agendamento.</DialogDescription>
+          <DialogDescription>
+            Para venda de produto ou atendimento sem agendamento.
+          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
@@ -48,7 +67,11 @@ export function WalkInDialog({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="walkin-client">Cliente (opcional)</Label>
-            <ClientPicker id="walkin-client" value={client} onChange={setClient} />
+            <ClientPicker
+              id="walkin-client"
+              value={client}
+              onChange={setClient}
+            />
           </div>
         </div>
         <DialogFooter>
@@ -66,7 +89,10 @@ export function WalkInDialog({ onClose }: { onClose: () => void }) {
                     toast.success("Comanda aberta");
                     router.push(`/admin/comandas/${order.id}`);
                   },
-                  onError: () => toast.error("Não foi possível abrir a comanda. Tente de novo."),
+                  onError: () =>
+                    toast.error(
+                      "Não foi possível abrir a comanda. Tente de novo.",
+                    ),
                 },
               )
             }

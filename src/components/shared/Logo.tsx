@@ -19,10 +19,13 @@ export function Logo({ size = "md", className }: LogoProps) {
   const s = sizes[size];
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <span aria-hidden className={cn("pole-stripe rounded-full ring-2 ring-primary", s.seal)} />
+      <span
+        aria-hidden
+        className={cn("pole-stripe ring-primary rounded-full ring-2", s.seal)}
+      />
       <span
         className={cn(
-          "font-display leading-display tracking-display font-black text-primary uppercase dark:text-text",
+          "font-display leading-display tracking-display text-primary dark:text-text font-black uppercase",
           s.text,
         )}
       >

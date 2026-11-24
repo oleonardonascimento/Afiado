@@ -21,9 +21,13 @@ export function AdminNavLink({ item, layout, onNavigate }: AdminNavLinkProps) {
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-h-11 items-center rounded-control transition-colors duration-150",
-        layout === "row" ? "gap-3 px-3 text-sm" : "flex-1 flex-col justify-center gap-0.5 text-xs",
-        active ? "bg-primary text-primary-fg" : "text-text-muted hover:bg-surface-2 hover:text-text",
+        "rounded-control flex min-h-11 items-center transition-colors duration-150",
+        layout === "row"
+          ? "gap-3 px-3 text-sm"
+          : "flex-1 flex-col justify-center gap-0.5 text-xs",
+        active
+          ? "bg-primary text-primary-fg"
+          : "text-text-muted hover:bg-surface-2 hover:text-text",
       )}
     >
       <Icon className="size-5 shrink-0" strokeWidth={1.75} aria-hidden />

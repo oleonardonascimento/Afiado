@@ -138,3 +138,29 @@ export function clubIndicators(subscriptions: Subscription[], plans: Plan[], mon
     pastDue: subscriptions.filter((s) => s.status === "past_due").length,
   };
 }
+
+export type ClientStats = { visits: number; lastVisit: string | null; spentCents: number };
+
+/** Por cliente: atendimentos concluídos, data da última visita e total pago em comandas fechadas. */
+export function clientStats(appointments: Appointment[], orders: Order[]): Map<string, ClientStats> {
+  const map = new Map<string, ClientStats>();
+  const get = (id: string) => {
+    let entry = map.get(id);
+    if (!entry) {
+      entry = { visits: 0, lastVisit: null, spentCents: 0 };
+      map.set(id, entry);
+    }
+    return entry;
+  };
+  for (const a of appointments) {
+    if (a.status !== "done") continue;
+    const entry = get(a.clientId);
+    entry.visits += 1;
+    const day = dateOf(a.start);
+    if (!entry.lastVisit || day > entry.lastVisit) entry.lastVisit = day;
+  }
+  for (const o of closed(orders)) {
+    if (o.clientId) get(o.clientId).spentCents += orderTotals(o).totalCents;
+  }
+  return map;
+}

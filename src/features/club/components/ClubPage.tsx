@@ -14,9 +14,18 @@ import { formatBRL } from "@/lib/format";
 import { benefitLabel } from "@/lib/labels";
 
 const STEPS = [
-  { title: "Assine", text: "Escolha o plano e pague por Pix ou cartão. Sem taxa de adesão." },
-  { title: "Agende", text: "Marque pelo site como sempre. O que o plano cobre aparece como R$ 0." },
-  { title: "Corte sem pagar na hora", text: "No balcão o benefício já entra sozinho. Você só paga o que for extra." },
+  {
+    title: "Assine",
+    text: "Escolha o plano e pague por Pix ou cartão. Sem taxa de adesão.",
+  },
+  {
+    title: "Agende",
+    text: "Marque pelo site como sempre. O que o plano cobre aparece como R$ 0.",
+  },
+  {
+    title: "Corte sem pagar na hora",
+    text: "No balcão o benefício já entra sozinho. Você só paga o que for extra.",
+  },
 ];
 
 const FAQ = [
@@ -43,19 +52,27 @@ export function ClubPage() {
   const services = useServices();
   const { client } = useCurrentClient();
   const club = useClientClub(client?.id ?? null);
-  const list = (plans.data ?? []).filter((p) => p.active).sort((a, b) => a.priceCents - b.priceCents);
-  const serviceName = (id: string) => services.data?.find((s) => s.id === id)?.name ?? "Serviço";
+  const list = (plans.data ?? [])
+    .filter((p) => p.active)
+    .sort((a, b) => a.priceCents - b.priceCents);
+  const serviceName = (id: string) =>
+    services.data?.find((s) => s.id === id)?.name ?? "Serviço";
   const hasPlan = club.active;
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-12 px-4 py-10">
       <header className="flex flex-col gap-3">
-        <p className="inline-flex items-center gap-2 text-text-muted">
+        <p className="text-text-muted inline-flex items-center gap-2">
           <Crown className="size-5" strokeWidth={1.75} aria-hidden />
           Assinatura mensal
         </p>
-        <h1 className="font-display text-5xl uppercase md:text-6xl">Clube Afiado</h1>
-        <p className="max-w-prose text-lg">Um valor fixo por mês para manter o corte em dia, sem pensar no preço a cada visita.</p>
+        <h1 className="font-display text-5xl uppercase md:text-6xl">
+          Clube Afiado
+        </h1>
+        <p className="max-w-prose text-lg">
+          Um valor fixo por mês para manter o corte em dia, sem pensar no preço
+          a cada visita.
+        </p>
       </header>
 
       <section aria-labelledby="how" className="flex flex-col gap-4">
@@ -65,7 +82,10 @@ export function ClubPage() {
         <ol className="grid gap-4 md:grid-cols-3">
           {STEPS.map((step, i) => (
             <li key={step.title} className="flex gap-3">
-              <span className="font-display text-4xl text-text-muted tabular-nums" aria-hidden>
+              <span
+                className="font-display text-text-muted text-4xl tabular-nums"
+                aria-hidden
+              >
                 {i + 1}
               </span>
               <span>
@@ -94,7 +114,7 @@ export function ClubPage() {
         ) : plans.isLoading || services.isLoading ? (
           <div className="grid gap-4 md:grid-cols-3">
             {[1, 2, 3].map((n) => (
-              <Skeleton key={n} className="h-80 rounded-card" />
+              <Skeleton key={n} className="rounded-card h-80" />
             ))}
           </div>
         ) : (
@@ -103,29 +123,42 @@ export function ClubPage() {
               <li
                 key={plan.id}
                 className={cn(
-                  "flex flex-col gap-4 rounded-card border bg-surface p-5",
-                  plan.recommended ? "border-2 border-primary" : "border-border",
+                  "rounded-card bg-surface flex flex-col gap-4 border p-5",
+                  plan.recommended
+                    ? "border-primary border-2"
+                    : "border-border",
                 )}
               >
                 <div className="flex flex-col gap-1">
-                  {plan.recommended && <span className="text-sm font-medium text-text-muted">Mais escolhido</span>}
+                  {plan.recommended && (
+                    <span className="text-text-muted text-sm font-medium">
+                      Mais escolhido
+                    </span>
+                  )}
                   <h3 className="text-xl font-semibold">{plan.name}</h3>
                   <p className="text-text-muted">{plan.description}</p>
                 </div>
                 <p>
-                  <span className="text-3xl font-semibold tabular-nums">{formatBRL(plan.priceCents)}</span>
+                  <span className="text-3xl font-semibold tabular-nums">
+                    {formatBRL(plan.priceCents)}
+                  </span>
                   <span className="text-text-muted">/mês</span>
                 </p>
                 <ul className="flex flex-col gap-2">
                   {plan.benefits.map((b) => (
                     <li key={b.serviceId} className="flex items-start gap-2">
-                      <Check className="mt-0.5 size-4 shrink-0 text-success" strokeWidth={2} aria-hidden />
+                      <Check
+                        className="text-success mt-0.5 size-4 shrink-0"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
                       {benefitLabel(serviceName(b.serviceId), b.monthlyLimit)}
                     </li>
                   ))}
                   {plan.rules.minDaysBetweenUses > 0 && (
-                    <li className="text-sm text-text-muted">
-                      Intervalo de {plan.rules.minDaysBetweenUses} dias entre usos.
+                    <li className="text-text-muted text-sm">
+                      Intervalo de {plan.rules.minDaysBetweenUses} dias entre
+                      usos.
                     </li>
                   )}
                 </ul>
@@ -136,7 +169,9 @@ export function ClubPage() {
                     size="lg"
                     className="mt-auto"
                   >
-                    <Link href={`/clube/assinar/${plan.id}`}>Assinar o plano {plan.name}</Link>
+                    <Link href={`/clube/assinar/${plan.id}`}>
+                      Assinar o plano {plan.name}
+                    </Link>
                   </Button>
                 )}
               </li>
@@ -145,15 +180,18 @@ export function ClubPage() {
         )}
       </section>
 
-      <section aria-labelledby="faq" className="flex max-w-prose flex-col gap-4">
+      <section
+        aria-labelledby="faq"
+        className="flex max-w-prose flex-col gap-4"
+      >
         <h2 id="faq" className="text-2xl font-semibold">
           Perguntas frequentes
         </h2>
-        <div className="flex flex-col divide-y divide-border">
+        <div className="divide-border flex flex-col divide-y">
           {FAQ.map((item) => (
             <details key={item.q} className="group py-3">
               <summary className="cursor-pointer font-medium">{item.q}</summary>
-              <p className="mt-2 text-text-muted">{item.a}</p>
+              <p className="text-text-muted mt-2">{item.a}</p>
             </details>
           ))}
         </div>

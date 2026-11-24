@@ -3,7 +3,8 @@
 /** Estado de UI do fluxo de agendamento (passo atual e escolhas). */
 import { create } from "zustand";
 
-export type BookingStep = "services" | "professional" | "datetime" | "identify" | "review";
+export type BookingStep =
+  "services" | "professional" | "datetime" | "identify" | "review";
 
 export const BOOKING_STEPS: { id: BookingStep; label: string }[] = [
   { id: "services", label: "Serviços" },
@@ -28,7 +29,14 @@ type BookingState = {
   chooseDate: (date: string) => void;
   chooseSlot: (slot: { start: string; professionalId: string }) => void;
   setNote: (note: string) => void;
-  start: (init: Partial<Pick<BookingState, "serviceIds" | "professionalId" | "rescheduleId" | "step">>) => void;
+  start: (
+    init: Partial<
+      Pick<
+        BookingState,
+        "serviceIds" | "professionalId" | "rescheduleId" | "step"
+      >
+    >,
+  ) => void;
 };
 
 const initial = {
@@ -46,10 +54,13 @@ export const useBookingStore = create<BookingState>((set) => ({
   goTo: (step) => set({ step }),
   toggleService: (id) =>
     set((s) => ({
-      serviceIds: s.serviceIds.includes(id) ? s.serviceIds.filter((x) => x !== id) : [...s.serviceIds, id],
+      serviceIds: s.serviceIds.includes(id)
+        ? s.serviceIds.filter((x) => x !== id)
+        : [...s.serviceIds, id],
       slot: null,
     })),
-  chooseProfessional: (professionalId) => set({ professionalId, slot: null, date: null }),
+  chooseProfessional: (professionalId) =>
+    set({ professionalId, slot: null, date: null }),
   chooseDate: (date) => set({ date, slot: null }),
   chooseSlot: (slot) => set({ slot }),
   setNote: (note) => set({ note }),

@@ -30,19 +30,97 @@ const DESK: StaffRole[] = ["owner", "reception"];
 const OWNER: StaffRole[] = ["owner"];
 
 export const ADMIN_NAV: AdminNavItem[] = [
-  { href: "/admin/agenda", label: "Agenda", icon: CalendarDays, roles: ALL, mobile: true },
-  { href: "/admin/comandas", label: "Comandas", icon: Receipt, roles: ALL, mobile: true },
-  { href: "/admin/clientes", label: "Clientes", icon: Users, roles: DESK, mobile: true },
-  { href: "/admin/caixa", label: "Caixa", icon: Wallet, roles: DESK, mobile: true },
-  { href: "/admin", label: "Início", icon: LayoutDashboard, roles: ALL, mobile: false },
-  { href: "/admin/clube", label: "Clube", icon: Crown, roles: DESK, mobile: false },
-  { href: "/admin/comissoes", label: "Comissões", icon: Percent, roles: ["owner", "barber"], mobile: false },
-  { href: "/admin/servicos", label: "Serviços", icon: Scissors, roles: OWNER, mobile: false },
-  { href: "/admin/produtos", label: "Produtos", icon: Package, roles: DESK, mobile: false },
-  { href: "/admin/equipe", label: "Equipe", icon: UserSquare2, roles: OWNER, mobile: false },
-  { href: "/admin/relatorios", label: "Relatórios", icon: BarChart3, roles: OWNER, mobile: false },
-  { href: "/admin/avaliacoes", label: "Avaliações", icon: Star, roles: OWNER, mobile: false },
-  { href: "/admin/configuracoes", label: "Configurações", icon: Settings, roles: OWNER, mobile: false },
+  {
+    href: "/admin/agenda",
+    label: "Agenda",
+    icon: CalendarDays,
+    roles: ALL,
+    mobile: true,
+  },
+  {
+    href: "/admin/comandas",
+    label: "Comandas",
+    icon: Receipt,
+    roles: ALL,
+    mobile: true,
+  },
+  {
+    href: "/admin/clientes",
+    label: "Clientes",
+    icon: Users,
+    roles: DESK,
+    mobile: true,
+  },
+  {
+    href: "/admin/caixa",
+    label: "Caixa",
+    icon: Wallet,
+    roles: DESK,
+    mobile: true,
+  },
+  {
+    href: "/admin",
+    label: "Início",
+    icon: LayoutDashboard,
+    roles: ALL,
+    mobile: false,
+  },
+  {
+    href: "/admin/clube",
+    label: "Clube",
+    icon: Crown,
+    roles: DESK,
+    mobile: false,
+  },
+  {
+    href: "/admin/comissoes",
+    label: "Comissões",
+    icon: Percent,
+    roles: ["owner", "barber"],
+    mobile: false,
+  },
+  {
+    href: "/admin/servicos",
+    label: "Serviços",
+    icon: Scissors,
+    roles: OWNER,
+    mobile: false,
+  },
+  {
+    href: "/admin/produtos",
+    label: "Produtos",
+    icon: Package,
+    roles: DESK,
+    mobile: false,
+  },
+  {
+    href: "/admin/equipe",
+    label: "Equipe",
+    icon: UserSquare2,
+    roles: OWNER,
+    mobile: false,
+  },
+  {
+    href: "/admin/relatorios",
+    label: "Relatórios",
+    icon: BarChart3,
+    roles: OWNER,
+    mobile: false,
+  },
+  {
+    href: "/admin/avaliacoes",
+    label: "Avaliações",
+    icon: Star,
+    roles: OWNER,
+    mobile: false,
+  },
+  {
+    href: "/admin/configuracoes",
+    label: "Configurações",
+    icon: Settings,
+    roles: OWNER,
+    mobile: false,
+  },
 ];
 
 export function navForRole(role: StaffRole): AdminNavItem[] {
@@ -51,4 +129,18 @@ export function navForRole(role: StaffRole): AdminNavItem[] {
 
 export function isActive(pathname: string, href: string): boolean {
   return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+}
+
+/** Item do menu que corresponde à rota (o mais específico). Rotas fora do menu ficam liberadas. */
+export function navItemFor(pathname: string): AdminNavItem | undefined {
+  return ADMIN_NAV.filter(
+    (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+  )
+    .filter((item) => item.href !== "/admin" || pathname === "/admin")
+    .sort((a, b) => b.href.length - a.href.length)[0];
+}
+
+export function canAccess(role: StaffRole, pathname: string): boolean {
+  const item = navItemFor(pathname);
+  return !item || item.roles.includes(role);
 }

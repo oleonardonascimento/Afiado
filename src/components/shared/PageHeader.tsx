@@ -2,7 +2,11 @@
  * PageHeader — título da tela do painel + ações à direita (slot `children`).
  * Use uma vez por página, no topo. Quebra as ações para a linha de baixo no celular.
  */
-type PageHeaderProps = { title: string; description?: string; children?: React.ReactNode };
+type PageHeaderProps = {
+  title: string;
+  description?: string;
+  children?: React.ReactNode;
+};
 
 export function PageHeader({ title, description, children }: PageHeaderProps) {
   return (

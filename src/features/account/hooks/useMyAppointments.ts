@@ -25,7 +25,12 @@ export function useRateAppointment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (review: Omit<Review, "id" | "createdAt" | "reply">) =>
-      repos.reviews.create({ ...review, createdAt: new Date().toISOString(), reply: null }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: reviewKeys.all }),
+      repos.reviews.create({
+        ...review,
+        createdAt: new Date().toISOString(),
+        reply: null,
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: reviewKeys.all }),
   });
 }

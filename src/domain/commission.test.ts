@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { commissionForItem, itemTotalCents } from "@/domain/commission";
+import { commissionForItem, commissionSummary, itemTotalCents } from "@/domain/commission";
 import type { OrderItem, Professional } from "@/domain/entities";
 
 const pro = {
@@ -63,5 +63,27 @@ describe("commission", () => {
       pct: null,
       amountCents: 1500,
     });
+  });
+});
+
+describe("commissionSummary", () => {
+  const base = { orderId: "o", orderItemId: "i", date: "2026-11-02T10:00:00-03:00", baseCents: 0, pct: null };
+  it("soma por tipo e separa pago de a pagar", () => {
+    const rows = commissionSummary([
+      { ...base, id: "1", professionalId: "a", kind: "service", amountCents: 1800, paidAt: null },
+      { ...base, id: "2", professionalId: "a", kind: "product", amountCents: 500, paidAt: "2026-11-03T10:00:00-03:00" },
+      { ...base, id: "3", professionalId: "a", kind: "club", amountCents: 1500, paidAt: null },
+      { ...base, id: "4", professionalId: "b", kind: "service", amountCents: 1000, paidAt: null },
+    ]);
+    expect(rows.find((r) => r.professionalId === "a")).toEqual({
+      professionalId: "a",
+      serviceCents: 1800,
+      productCents: 500,
+      clubCents: 1500,
+      totalCents: 3800,
+      paidCents: 500,
+      toPayCents: 3300,
+    });
+    expect(rows.find((r) => r.professionalId === "b")?.toPayCents).toBe(1000);
   });
 });

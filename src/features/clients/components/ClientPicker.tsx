@@ -13,14 +13,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClientSchema, type Client } from "@/domain/entities";
 import { normalizePhone } from "@/domain/phone";
-import { useClients, useCreateClient } from "@/features/clients/hooks/useClients";
+import {
+  useClients,
+  useCreateClient,
+} from "@/features/clients/hooks/useClients";
 import { formatPhone } from "@/lib/format";
 
 const MAX_RESULTS = 6;
 
-type ClientPickerProps = { value: Client | null; onChange: (client: Client | null) => void; id?: string };
+type ClientPickerProps = {
+  value: Client | null;
+  onChange: (client: Client | null) => void;
+  id?: string;
+};
 
-export function ClientPicker({ value, onChange, id = "client-search" }: ClientPickerProps) {
+export function ClientPicker({
+  value,
+  onChange,
+  id = "client-search",
+}: ClientPickerProps) {
   const clients = useClients();
   const createClient = useCreateClient();
   const [query, setQuery] = useState("");
@@ -31,12 +42,19 @@ export function ClientPicker({ value, onChange, id = "client-search" }: ClientPi
 
   if (value) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-control border border-border-strong px-3 py-2">
+      <div className="rounded-control border-border-strong flex items-center justify-between gap-3 border px-3 py-2">
         <span className="min-w-0">
           <span className="block truncate font-medium">{value.name}</span>
-          <span className="text-sm text-text-muted tabular-nums">{formatPhone(value.phone)}</span>
+          <span className="text-text-muted text-sm tabular-nums">
+            {formatPhone(value.phone)}
+          </span>
         </span>
-        <Button type="button" variant="ghost" size="sm" onClick={() => onChange(null)}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onChange(null)}
+        >
           Trocar cliente
         </Button>
       </div>
@@ -45,10 +63,14 @@ export function ClientPicker({ value, onChange, id = "client-search" }: ClientPi
 
   if (creating) {
     return (
-      <div className="flex flex-col gap-3 rounded-control border border-border-strong p-3">
+      <div className="rounded-control border-border-strong flex flex-col gap-3 border p-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${id}-name`}>Nome</Label>
-          <Input id={`${id}-name`} value={newName} onChange={(e) => setNewName(e.target.value)} />
+          <Input
+            id={`${id}-name`}
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${id}-phone`}>Celular com DDD</Label>
@@ -59,7 +81,7 @@ export function ClientPicker({ value, onChange, id = "client-search" }: ClientPi
             onChange={(e) => setNewPhone(e.target.value)}
           />
         </div>
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p className="text-danger text-sm">{error}</p>}
         <div className="flex gap-2">
           <Button
             type="button"
@@ -79,11 +101,15 @@ export function ClientPicker({ value, onChange, id = "client-search" }: ClientPi
               };
               const parsed = ClientSchema.omit({ id: true }).safeParse(input);
               if (!parsed.success) {
-                setError("Confira o nome (mínimo 2 letras) e o celular com DDD.");
+                setError(
+                  "Confira o nome (mínimo 2 letras) e o celular com DDD.",
+                );
                 return;
               }
               if (clients.data?.some((c) => c.phone === input.phone)) {
-                setError("Já existe cliente com esse celular. Busque pelo número.");
+                setError(
+                  "Já existe cliente com esse celular. Busque pelo número.",
+                );
                 return;
               }
               createClient.mutate(parsed.data, {
@@ -92,13 +118,19 @@ export function ClientPicker({ value, onChange, id = "client-search" }: ClientPi
                   setCreating(false);
                   onChange(client);
                 },
-                onError: () => setError("Não foi possível cadastrar. Tente de novo."),
+                onError: () =>
+                  setError("Não foi possível cadastrar. Tente de novo."),
               });
             }}
           >
             Cadastrar cliente
           </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={() => setCreating(false)}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setCreating(false)}
+          >
             Voltar à busca
           </Button>
         </div>
@@ -112,7 +144,11 @@ export function ClientPicker({ value, onChange, id = "client-search" }: ClientPi
     term.length < 2
       ? []
       : (clients.data ?? [])
-          .filter((c) => c.name.toLowerCase().includes(term) || (digits.length >= 3 && c.phone.includes(digits)))
+          .filter(
+            (c) =>
+              c.name.toLowerCase().includes(term) ||
+              (digits.length >= 3 && c.phone.includes(digits)),
+          )
           .slice(0, MAX_RESULTS);
 
   return (
@@ -124,25 +160,29 @@ export function ClientPicker({ value, onChange, id = "client-search" }: ClientPi
         autoComplete="off"
         onChange={(e) => setQuery(e.target.value)}
       />
-      {clients.isLoading && <p className="text-sm text-text-muted">Carregando clientes…</p>}
+      {clients.isLoading && (
+        <p className="text-text-muted text-sm">Carregando clientes…</p>
+      )}
       {results.length > 0 && (
-        <ul className="divide-y divide-border rounded-control border border-border">
+        <ul className="divide-border rounded-control border-border divide-y border">
           {results.map((c) => (
             <li key={c.id}>
               <button
                 type="button"
                 onClick={() => onChange(c)}
-                className="flex min-h-11 w-full items-center justify-between gap-3 px-3 text-left hover:bg-surface-2"
+                className="hover:bg-surface-2 flex min-h-11 w-full items-center justify-between gap-3 px-3 text-left"
               >
                 <span className="truncate">{c.name}</span>
-                <span className="text-sm text-text-muted tabular-nums">{formatPhone(c.phone)}</span>
+                <span className="text-text-muted text-sm tabular-nums">
+                  {formatPhone(c.phone)}
+                </span>
               </button>
             </li>
           ))}
         </ul>
       )}
       {term.length >= 2 && results.length === 0 && !clients.isLoading && (
-        <p className="text-sm text-text-muted">Nenhum cliente encontrado.</p>
+        <p className="text-text-muted text-sm">Nenhum cliente encontrado.</p>
       )}
       <Button
         type="button"

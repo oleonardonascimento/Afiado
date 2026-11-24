@@ -23,7 +23,9 @@ export function useCurrentClient() {
 }
 
 export function useRequestCode() {
-  return useMutation({ mutationFn: (phone: string) => repos.auth.requestCode(phone) });
+  return useMutation({
+    mutationFn: (phone: string) => repos.auth.requestCode(phone),
+  });
 }
 
 export function useVerifyCode() {
@@ -42,6 +44,7 @@ export function useSignOut() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => repos.auth.signOut(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: sessionKeys.all }),
   });
 }

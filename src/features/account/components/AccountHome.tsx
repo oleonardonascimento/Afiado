@@ -13,7 +13,12 @@ import { useAccountClient } from "@/features/account/components/AccountShell";
 import { AppointmentItem } from "@/features/account/components/AppointmentItem";
 import { useClientAppointments } from "@/features/account/hooks/useMyAppointments";
 import { useSignOut } from "@/features/auth/hooks/useClientAuth";
-import { useProfessionals, useReviews, useServices, useShop } from "@/features/catalog/hooks/useCatalog";
+import {
+  useProfessionals,
+  useReviews,
+  useServices,
+  useShop,
+} from "@/features/catalog/hooks/useCatalog";
 import { useClientClub } from "@/features/club/hooks/useClientClub";
 import { formatDate } from "@/lib/format";
 import { SUBSCRIPTION_STATUS_LABEL, firstName } from "@/lib/labels";
@@ -33,7 +38,9 @@ export function AccountHome() {
   const next = list
     .filter((a) => a.status === "scheduled" || a.status === "confirmed")
     .sort((a, b) => a.start.localeCompare(b.start))[0];
-  const last = list.filter((a) => a.status === "done").sort((a, b) => b.start.localeCompare(a.start))[0];
+  const last = list
+    .filter((a) => a.status === "done")
+    .sort((a, b) => b.start.localeCompare(a.start))[0];
 
   return (
     <div className="flex flex-col gap-8">
@@ -44,19 +51,21 @@ export function AccountHome() {
           Próximo horário
         </h2>
         {appointments.isLoading || services.isLoading ? (
-          <Skeleton className="h-28 rounded-card" />
+          <Skeleton className="rounded-card h-28" />
         ) : appointments.isError ? (
           <ErrorState onRetry={() => void appointments.refetch()} />
         ) : next ? (
           <AppointmentItem
             appointment={next}
             services={services.data ?? []}
-            professional={professionals.data?.find((p) => p.id === next.professionalId)}
+            professional={professionals.data?.find(
+              (p) => p.id === next.professionalId,
+            )}
             deadlineHours={shop.data?.booking.cancelDeadlineHours ?? 3}
             reviewed={false}
           />
         ) : (
-          <div className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-4">
+          <div className="rounded-card border-border bg-surface flex flex-col items-start gap-3 border p-4">
             <p className="text-text-muted">Você não tem horário marcado.</p>
             <Button asChild variant="primary">
               <Link href="/agendar">Agendar horário</Link>
@@ -65,20 +74,27 @@ export function AccountHome() {
         )}
         {last && !next && (
           <Button asChild variant="secondary" className="self-start">
-            <Link href={`/agendar?servicos=${last.serviceIds.join(",")}&profissional=${last.professionalId}`}>
+            <Link
+              href={`/agendar?servicos=${last.serviceIds.join(",")}&profissional=${last.professionalId}`}
+            >
               <Repeat strokeWidth={1.75} aria-hidden />
               Agendar de novo o último atendimento
             </Link>
           </Button>
         )}
-        {reviews.data && last && !reviews.data.some((r) => r.appointmentId === last.id) && (
-          <p className="text-sm text-text-muted">
-            Seu último atendimento ainda não foi avaliado.{" "}
-            <Link href="/conta/agendamentos" className="text-text underline underline-offset-4">
-              Avaliar agora
-            </Link>
-          </p>
-        )}
+        {reviews.data &&
+          last &&
+          !reviews.data.some((r) => r.appointmentId === last.id) && (
+            <p className="text-text-muted text-sm">
+              Seu último atendimento ainda não foi avaliado.{" "}
+              <Link
+                href="/conta/agendamentos"
+                className="text-text underline underline-offset-4"
+              >
+                Avaliar agora
+              </Link>
+            </p>
+          )}
       </section>
 
       <section aria-labelledby="plan-title" className="flex flex-col gap-3">
@@ -86,33 +102,51 @@ export function AccountHome() {
           Clube
         </h2>
         {club.isLoading ? (
-          <Skeleton className="h-24 rounded-card" />
-        ) : club.subscription && club.plan && club.subscription.status !== "canceled" ? (
-          <div className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+          <Skeleton className="rounded-card h-24" />
+        ) : club.subscription &&
+          club.plan &&
+          club.subscription.status !== "canceled" ? (
+          <div className="rounded-card border-border bg-surface flex flex-col gap-2 border p-4">
             <p className="font-medium">
-              {club.plan.name} · {SUBSCRIPTION_STATUS_LABEL[club.subscription.status]}
+              {club.plan.name} ·{" "}
+              {SUBSCRIPTION_STATUS_LABEL[club.subscription.status]}
             </p>
             {club.usage && (
-              <ul className="text-sm text-text-muted">
+              <ul className="text-text-muted text-sm">
                 {club.plan.benefits.map((b) => (
                   <li key={b.serviceId}>
-                    {services.data?.find((s) => s.id === b.serviceId)?.name ?? "Serviço"}:{" "}
-                    {remainingLabel(b.monthlyLimit, club.usage?.byService[b.serviceId] ?? 0)}
+                    {services.data?.find((s) => s.id === b.serviceId)?.name ??
+                      "Serviço"}
+                    :{" "}
+                    {remainingLabel(
+                      b.monthlyLimit,
+                      club.usage?.byService[b.serviceId] ?? 0,
+                    )}
                   </li>
                 ))}
               </ul>
             )}
-            <p className="text-sm text-text-muted">
-              Período até {formatDate(club.subscription.currentPeriodEnd, "dd/MM/yyyy")}
+            <p className="text-text-muted text-sm">
+              Período até{" "}
+              {formatDate(club.subscription.currentPeriodEnd, "dd/MM/yyyy")}
             </p>
-            <Link href="/conta/plano" className="self-start text-sm underline underline-offset-4">
+            <Link
+              href="/conta/plano"
+              className="self-start text-sm underline underline-offset-4"
+            >
               Ver meu plano
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col items-start gap-2 rounded-card border border-border bg-surface p-4">
-            <p className="text-text-muted">Com o Clube, você paga um valor fixo por mês e corta quando precisar.</p>
-            <Link href="/clube" className="text-sm underline underline-offset-4">
+          <div className="rounded-card border-border bg-surface flex flex-col items-start gap-2 border p-4">
+            <p className="text-text-muted">
+              Com o Clube, você paga um valor fixo por mês e corta quando
+              precisar.
+            </p>
+            <Link
+              href="/clube"
+              className="text-sm underline underline-offset-4"
+            >
               Conhecer os planos
             </Link>
           </div>

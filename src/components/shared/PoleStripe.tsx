@@ -15,7 +15,11 @@ export function PoleStripe({ className, animated = false }: PoleStripeProps) {
   return (
     <div
       aria-hidden
-      className={cn("pole-stripe", animated && "motion-safe:animate-pole", className)}
+      className={cn(
+        "pole-stripe",
+        animated && "motion-safe:animate-pole",
+        className,
+      )}
     />
   );
 }

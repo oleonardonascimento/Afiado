@@ -3,6 +3,7 @@ import type { Appointment, Client, Order, Plan, Product, Subscription } from "@/
 import {
   averageTicketCents,
   birthdaysBetween,
+  clientStats,
   clubIndicators,
   groupSum,
   lapsedClients,
@@ -167,5 +168,16 @@ describe("metrics", () => {
       "2026-11-01T03:00:00.000Z",
     );
     expect(result).toEqual({ active: 3, mrrCents: 30000, newThisMonth: 1, canceledThisMonth: 1, pastDue: 1 });
+  });
+
+  it("estatísticas por cliente: visitas concluídas, última visita e total gasto", () => {
+    const apts = [
+      { clientId: "c1", status: "done", start: "2026-10-01T15:00:00.000Z" },
+      { clientId: "c1", status: "done", start: "2026-11-20T15:00:00.000Z" },
+      { clientId: "c1", status: "no_show", start: "2026-11-22T15:00:00.000Z" },
+    ] as Appointment[];
+    const stats = clientStats(apts, orders);
+    expect(stats.get("c1")).toEqual({ visits: 2, lastVisit: "2026-11-20", spentCents: 7500 });
+    expect(stats.get("outro")).toBeUndefined();
   });
 });

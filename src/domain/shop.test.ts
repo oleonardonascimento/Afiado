@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shop } from "@/data/mock/seed-catalog";
-import { openStatus, ratingSummary } from "@/domain/shop";
+import { openStatus, ratingSummary, weeklyHoursProblem } from "@/domain/shop";
 import type { Review } from "@/domain/entities";
 
 describe("openStatus", () => {
@@ -29,5 +29,16 @@ describe("ratingSummary", () => {
     expect(ratingSummary([r(5), r(4), r(4, "pro-2")])).toEqual({ average: 4.3, count: 3 });
     expect(ratingSummary([r(5), r(4), r(4, "pro-2")], "pro-1")).toEqual({ average: 4.5, count: 2 });
     expect(ratingSummary([])).toEqual({ average: null, count: 0 });
+  });
+});
+
+describe("weeklyHoursProblem", () => {
+  it("aceita grade válida e aponta início depois do fim ou sobreposição", () => {
+    const ok = [{ weekday: 1, ranges: [{ start: "09:00", end: "12:00" }, { start: "13:00", end: "19:00" }] }];
+    expect(weeklyHoursProblem(ok)).toBeNull();
+    expect(weeklyHoursProblem([{ weekday: 2, ranges: [{ start: "12:00", end: "09:00" }] }])).toMatch(/terça/);
+    expect(
+      weeklyHoursProblem([{ weekday: 3, ranges: [{ start: "09:00", end: "13:00" }, { start: "12:00", end: "18:00" }] }]),
+    ).toMatch(/sobrepõem/);
   });
 });

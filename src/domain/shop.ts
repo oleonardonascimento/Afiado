@@ -36,3 +36,16 @@ export function ratingSummary(
 }
 
 export { WEEKDAY_NAMES };
+
+/** Valida uma grade semanal: cada faixa com início antes do fim e sem sobreposição no mesmo dia. */
+export function weeklyHoursProblem(hours: Barbershop["hours"]): string | null {
+  for (const day of hours) {
+    const sorted = [...day.ranges].sort((a, b) => a.start.localeCompare(b.start));
+    for (const [i, r] of sorted.entries()) {
+      if (r.start >= r.end) return `Na ${WEEKDAY_NAMES[day.weekday]}, o início precisa ser antes do fim.`;
+      const prev = sorted[i - 1];
+      if (prev && r.start < prev.end) return `Na ${WEEKDAY_NAMES[day.weekday]}, as faixas de horário se sobrepõem.`;
+    }
+  }
+  return null;
+}

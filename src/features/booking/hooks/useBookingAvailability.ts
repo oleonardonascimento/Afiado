@@ -3,7 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { repos } from "@/data";
 import { availableSlots, type Slot } from "@/domain/availability";
-import { useProfessionals, useServices, useShop, useTimeOff } from "@/features/catalog/hooks/useCatalog";
+import {
+  useProfessionals,
+  useServices,
+  useShop,
+  useTimeOff,
+} from "@/features/catalog/hooks/useCatalog";
 import { addDays, atTime, todayIn, weekdayOf } from "@/lib/calendar";
 import { appointmentKeys } from "@/lib/query-keys";
 
@@ -16,10 +21,18 @@ type Params = {
 };
 
 /** "closed" = barbearia fechada; "off" = barbeiro escolhido não trabalha no dia. */
-export type DayAvailability = { date: string; slots: Slot[]; status: "open" | "closed" | "off" };
+export type DayAvailability = {
+  date: string;
+  slots: Slot[];
+  status: "open" | "closed" | "off";
+};
 
 /** Horários livres dos próximos 14 dias para os serviços e barbeiro escolhidos. */
-export function useBookingAvailability({ serviceIds, professionalId, ignoreAppointmentId }: Params) {
+export function useBookingAvailability({
+  serviceIds,
+  professionalId,
+  ignoreAppointmentId,
+}: Params) {
   const shop = useShop();
   const services = useServices();
   const professionals = useProfessionals();
@@ -36,7 +49,11 @@ export function useBookingAvailability({ serviceIds, professionalId, ignoreAppoi
   });
 
   const ready =
-    shop.data && services.data && professionals.data && timeOff.data && appointments.data;
+    shop.data &&
+    services.data &&
+    professionals.data &&
+    timeOff.data &&
+    appointments.data;
 
   const days: DayAvailability[] = ready
     ? Array.from({ length: BOOKING_DAYS }, (_, i) => {
@@ -44,9 +61,13 @@ export function useBookingAvailability({ serviceIds, professionalId, ignoreAppoi
         const weekday = weekdayOf(date);
         const shopClosed =
           shop.data.closures.some((c) => c.date === date) ||
-          (shop.data.hours.find((h) => h.weekday === weekday)?.ranges.length ?? 0) === 0;
+          (shop.data.hours.find((h) => h.weekday === weekday)?.ranges.length ??
+            0) === 0;
         const pro = professionals.data.find((p) => p.id === professionalId);
-        const proOff = !!pro && (pro.hours.find((h) => h.weekday === weekday)?.ranges.length ?? 0) === 0;
+        const proOff =
+          !!pro &&
+          (pro.hours.find((h) => h.weekday === weekday)?.ranges.length ?? 0) ===
+            0;
         return {
           date,
           status: shopClosed ? "closed" : proOff ? "off" : "open",
@@ -69,7 +90,11 @@ export function useBookingAvailability({ serviceIds, professionalId, ignoreAppoi
   return {
     days,
     isLoading: !ready && !appointments.isError,
-    isError: shop.isError || services.isError || professionals.isError || appointments.isError,
+    isError:
+      shop.isError ||
+      services.isError ||
+      professionals.isError ||
+      appointments.isError,
     refetch: () => void appointments.refetch(),
   };
 }

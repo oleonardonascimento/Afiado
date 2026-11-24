@@ -19,7 +19,15 @@ type WeekListProps = {
   onDay: (date: string) => void;
 };
 
-export function WeekList({ weekStart, appointments, clients, professionals, clubClients, onOpen, onDay }: WeekListProps) {
+export function WeekList({
+  weekStart,
+  appointments,
+  clients,
+  professionals,
+  clubClients,
+  onOpen,
+  onDay,
+}: WeekListProps) {
   const today = todayIn(new Date());
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   return (
@@ -32,36 +40,57 @@ export function WeekList({ weekStart, appointments, clients, professionals, club
           <section
             key={day}
             aria-label={formatDate(middayIso(day), "EEEE, dd/MM")}
-            className={cn("flex flex-col rounded-card border bg-surface", day === today ? "border-primary" : "border-border")}
+            className={cn(
+              "rounded-card bg-surface flex flex-col border",
+              day === today ? "border-primary" : "border-border",
+            )}
           >
             <button
               type="button"
               onClick={() => onDay(day)}
-              className="flex items-center justify-between border-b border-border px-3 py-2 text-left hover:bg-surface-2"
+              className="border-border hover:bg-surface-2 flex items-center justify-between border-b px-3 py-2 text-left"
             >
-              <span className="font-medium">{capitalizeFirst(formatDate(middayIso(day), "EEE dd/MM"))}</span>
-              <span className="text-sm text-text-muted">{list.length} atend.</span>
+              <span className="font-medium">
+                {capitalizeFirst(formatDate(middayIso(day), "EEE dd/MM"))}
+              </span>
+              <span className="text-text-muted text-sm">
+                {list.length} atend.
+              </span>
             </button>
             {list.length === 0 ? (
-              <p className="px-3 py-3 text-sm text-text-muted">Sem agendamentos.</p>
+              <p className="text-text-muted px-3 py-3 text-sm">
+                Sem agendamentos.
+              </p>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-border divide-y">
                 {list.map((a) => (
                   <li key={a.id}>
                     <button
                       type="button"
                       onClick={() => onOpen(a.id)}
-                      className="flex w-full flex-col gap-1 px-3 py-2 text-left text-sm hover:bg-surface-2"
+                      className="hover:bg-surface-2 flex w-full flex-col gap-1 px-3 py-2 text-left text-sm"
                     >
                       <span className="flex items-center gap-2">
-                        <span className="font-medium tabular-nums">{formatTime(a.start)}</span>
-                        <span className="truncate">{clients.find((c) => c.id === a.clientId)?.name ?? "Cliente"}</span>
+                        <span className="font-medium tabular-nums">
+                          {formatTime(a.start)}
+                        </span>
+                        <span className="truncate">
+                          {clients.find((c) => c.id === a.clientId)?.name ??
+                            "Cliente"}
+                        </span>
                         {clubClients.has(a.clientId) && (
-                          <Crown className="size-3.5 shrink-0 text-club-fg" strokeWidth={1.75} aria-label="Assinante do Clube" />
+                          <Crown
+                            className="text-club-fg size-3.5 shrink-0"
+                            strokeWidth={1.75}
+                            aria-label="Assinante do Clube"
+                          />
                         )}
                       </span>
-                      <span className="flex items-center justify-between gap-2 text-text-muted">
-                        {firstName(professionals.find((p) => p.id === a.professionalId)?.name ?? "")}
+                      <span className="text-text-muted flex items-center justify-between gap-2">
+                        {firstName(
+                          professionals.find((p) => p.id === a.professionalId)
+                            ?.name ?? "",
+                        )}
                         <AppointmentStatusBadge status={a.status} />
                       </span>
                     </button>

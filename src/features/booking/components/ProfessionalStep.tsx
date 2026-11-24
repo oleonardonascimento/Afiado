@@ -8,7 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { professionalsFor } from "@/domain/availability";
 import { ratingSummary } from "@/domain/shop";
 import { useBookingStore } from "@/features/booking/booking-store";
-import { useProfessionals, useReviews } from "@/features/catalog/hooks/useCatalog";
+import {
+  useProfessionals,
+  useReviews,
+} from "@/features/catalog/hooks/useCatalog";
 import { cn } from "@/lib/cn";
 
 type ProfessionalStepProps = { onChosen: () => void };
@@ -25,7 +28,7 @@ export function ProfessionalStep({ onChosen }: ProfessionalStepProps) {
     return (
       <div className="flex flex-col gap-2">
         {[1, 2, 3].map((n) => (
-          <Skeleton key={n} className="h-20 rounded-card" />
+          <Skeleton key={n} className="rounded-card h-20" />
         ))}
       </div>
     );
@@ -52,12 +55,14 @@ export function ProfessionalStep({ onChosen }: ProfessionalStepProps) {
         <ul className="flex flex-col gap-2">
           <li>
             <Option selected={current === null} onClick={() => pick(null)}>
-              <span className="flex size-12 items-center justify-center rounded-full bg-surface-2">
+              <span className="bg-surface-2 flex size-12 items-center justify-center rounded-full">
                 <Users className="size-5" strokeWidth={1.75} aria-hidden />
               </span>
               <span className="flex flex-col">
                 <span className="font-medium">Qualquer disponível</span>
-                <span className="text-sm text-text-muted">Mostra mais horários</span>
+                <span className="text-text-muted text-sm">
+                  Mostra mais horários
+                </span>
               </span>
             </Option>
           </li>
@@ -65,18 +70,22 @@ export function ProfessionalStep({ onChosen }: ProfessionalStepProps) {
             const rating = ratingSummary(reviews.data ?? [], pro.id);
             return (
               <li key={pro.id}>
-                <Option selected={current === pro.id} onClick={() => pick(pro.id)}>
+                <Option
+                  selected={current === pro.id}
+                  onClick={() => pick(pro.id)}
+                >
                   <PersonAvatar name={pro.name} photoUrl={pro.photoUrl} />
                   <span className="flex min-w-0 flex-col">
                     <span className="font-medium">{pro.name}</span>
-                    <span className="truncate text-sm text-text-muted">
+                    <span className="text-text-muted truncate text-sm">
                       {pro.specialties.join(", ") || "Corte e barba"}
                     </span>
                     {rating.average !== null && (
-                      <span className="mt-0.5 flex items-center gap-1.5 text-sm text-text-muted">
+                      <span className="text-text-muted mt-0.5 flex items-center gap-1.5 text-sm">
                         <Stars value={rating.average} />
                         <span className="tabular-nums">
-                          {rating.average.toFixed(1).replace(".", ",")} ({rating.count})
+                          {rating.average.toFixed(1).replace(".", ",")} (
+                          {rating.count})
                         </span>
                       </span>
                     )}
@@ -106,8 +115,10 @@ function Option({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-3 rounded-card border bg-surface p-3 text-left transition-colors duration-150",
-        selected ? "border-primary ring-1 ring-primary" : "border-border-strong hover:bg-surface-2",
+        "rounded-card bg-surface flex w-full items-center gap-3 border p-3 text-left transition-colors duration-150",
+        selected
+          ? "border-primary ring-primary ring-1"
+          : "border-border-strong hover:bg-surface-2",
       )}
     >
       {children}

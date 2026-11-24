@@ -1,7 +1,16 @@
 "use client";
 
 /** Painel lateral do agendamento: dados do cliente, serviços e ações de status. */
-import { Check, CheckCheck, Crown, MessageCircle, Play, Receipt, UserX, X } from "lucide-react";
+import {
+  Check,
+  CheckCheck,
+  Crown,
+  MessageCircle,
+  Play,
+  Receipt,
+  UserX,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,11 +27,24 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { fillTemplate } from "@/domain/booking-policy";
 import type { Appointment, AppointmentStatus } from "@/domain/entities";
-import { useCompleteAppointment, useSetAppointmentStatus } from "@/features/agenda/hooks/useAgenda";
-import { useProfessionals, useServices, useShop } from "@/features/catalog/hooks/useCatalog";
+import {
+  useCompleteAppointment,
+  useSetAppointmentStatus,
+} from "@/features/agenda/hooks/useAgenda";
+import {
+  useProfessionals,
+  useServices,
+  useShop,
+} from "@/features/catalog/hooks/useCatalog";
 import { useClients } from "@/features/clients/hooks/useClients";
 import { formatBRL, formatDate, formatPhone, formatTime } from "@/lib/format";
 import { capitalizeFirst, durationLabel, firstName } from "@/lib/labels";
@@ -42,7 +64,12 @@ const STATUS_TOAST: Partial<Record<AppointmentStatus, string>> = {
   canceled: "Agendamento cancelado",
 };
 
-export function AppointmentSheet({ appointmentId, appointments, clubClients, onClose }: AppointmentSheetProps) {
+export function AppointmentSheet({
+  appointmentId,
+  appointments,
+  clubClients,
+  onClose,
+}: AppointmentSheetProps) {
   const router = useRouter();
   const clients = useClients();
   const services = useServices();
@@ -55,7 +82,9 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
   const apt = appointments.find((a) => a.id === appointmentId);
   const client = clients.data?.find((c) => c.id === apt?.clientId);
   const pro = professionals.data?.find((p) => p.id === apt?.professionalId);
-  const chosen = (services.data ?? []).filter((s) => apt?.serviceIds.includes(s.id));
+  const chosen = (services.data ?? []).filter((s) =>
+    apt?.serviceIds.includes(s.id),
+  );
   const busy = setStatus.isPending || complete.isPending;
 
   const change = (status: AppointmentStatus) => {
@@ -63,8 +92,10 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
     setStatus.mutate(
       { id: apt.id, status },
       {
-        onSuccess: () => toast.success(STATUS_TOAST[status] ?? "Agendamento atualizado"),
-        onError: () => toast.error("Não foi possível atualizar. Tente de novo."),
+        onSuccess: () =>
+          toast.success(STATUS_TOAST[status] ?? "Agendamento atualizado"),
+        onError: () =>
+          toast.error("Não foi possível atualizar. Tente de novo."),
       },
     );
   };
@@ -88,23 +119,35 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
               <SheetTitle className="flex items-center gap-2">
                 {client?.name ?? "Cliente"}
                 {clubClients.has(apt.clientId) && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-club px-2 py-0.5 text-xs font-medium text-club-fg">
-                    <Crown className="size-3.5" strokeWidth={1.75} aria-hidden />
+                  <span className="bg-club text-club-fg inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+                    <Crown
+                      className="size-3.5"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
                     Clube
                   </span>
                 )}
               </SheetTitle>
               <SheetDescription>
-                {when}, <span className="tabular-nums">{formatTime(apt.start)}–{formatTime(apt.end)}</span> com{" "}
-                {pro?.name ?? "barbeiro"}
+                {when},{" "}
+                <span className="tabular-nums">
+                  {formatTime(apt.start)}–{formatTime(apt.end)}
+                </span>{" "}
+                com {pro?.name ?? "barbeiro"}
               </SheetDescription>
             </SheetHeader>
 
             <div className="flex flex-col gap-4 px-4">
-              <AppointmentStatusBadge status={apt.status} className="self-start" />
+              <AppointmentStatusBadge
+                status={apt.status}
+                className="self-start"
+              />
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
                 <dt className="text-text-muted">Celular</dt>
-                <dd className="tabular-nums">{client ? formatPhone(client.phone) : "—"}</dd>
+                <dd className="tabular-nums">
+                  {client ? formatPhone(client.phone) : "—"}
+                </dd>
                 <dt className="text-text-muted">Serviços</dt>
                 <dd>
                   {chosen.map((s) => (
@@ -116,7 +159,9 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
                 <dt className="text-text-muted">Valor</dt>
                 <dd className="tabular-nums">{formatBRL(apt.priceCents)}</dd>
                 <dt className="text-text-muted">Origem</dt>
-                <dd>{apt.origin === "online" ? "Agendamento online" : "Painel"}</dd>
+                <dd>
+                  {apt.origin === "online" ? "Agendamento online" : "Painel"}
+                </dd>
                 {apt.note && (
                   <>
                     <dt className="text-text-muted">Observação</dt>
@@ -133,28 +178,45 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
 
               <div className="flex flex-col gap-2">
                 {apt.status === "scheduled" && (
-                  <Button variant="secondary" disabled={busy} onClick={() => change("confirmed")}>
+                  <Button
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => change("confirmed")}
+                  >
                     <Check strokeWidth={1.75} aria-hidden />
                     Confirmar presença
                   </Button>
                 )}
                 {(apt.status === "scheduled" || apt.status === "confirmed") && (
-                  <Button variant="secondary" disabled={busy} onClick={() => change("in_service")}>
+                  <Button
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => change("in_service")}
+                  >
                     <Play strokeWidth={1.75} aria-hidden />
                     Iniciar atendimento
                   </Button>
                 )}
-                {["scheduled", "confirmed", "in_service"].includes(apt.status) && (
+                {["scheduled", "confirmed", "in_service"].includes(
+                  apt.status,
+                ) && (
                   <Button
                     loading={complete.isPending}
                     disabled={busy}
                     onClick={() =>
                       complete.mutate(apt.id, {
                         onSuccess: (order) => {
-                          toast.success("Atendimento concluído. Comanda aberta.");
+                          toast.success(
+                            "Atendimento concluído. Comanda aberta.",
+                          );
                           router.push(`/admin/comandas/${order.id}`);
                         },
-                        onError: (e) => toast.error(e instanceof Error ? e.message : "Não foi possível concluir."),
+                        onError: (e) =>
+                          toast.error(
+                            e instanceof Error
+                              ? e.message
+                              : "Não foi possível concluir.",
+                          ),
                       })
                     }
                   >
@@ -172,26 +234,41 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
                 )}
                 {client && (
                   <Button asChild variant="secondary">
-                    <a href={whatsappLink(client.phone, reminder)} target="_blank" rel="noreferrer">
+                    <a
+                      href={whatsappLink(client.phone, reminder)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       <MessageCircle strokeWidth={1.75} aria-hidden />
                       Enviar lembrete no WhatsApp
                     </a>
                   </Button>
                 )}
                 {(apt.status === "scheduled" || apt.status === "confirmed") && (
-                  <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-                    <Button variant="ghost" disabled={busy} onClick={() => change("no_show")}>
+                  <div className="border-border flex flex-wrap gap-2 border-t pt-3">
+                    <Button
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => change("no_show")}
+                    >
                       <UserX strokeWidth={1.75} aria-hidden />
                       Marcar falta
                     </Button>
-                    <Button variant="ghost" disabled={busy} onClick={() => setConfirmCancel(true)}>
+                    <Button
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => setConfirmCancel(true)}
+                    >
                       <X strokeWidth={1.75} aria-hidden />
                       Cancelar agendamento
                     </Button>
                   </div>
                 )}
                 {client && (
-                  <Link href={`/admin/clientes/${client.id}`} className="text-sm underline underline-offset-4">
+                  <Link
+                    href={`/admin/clientes/${client.id}`}
+                    className="text-sm underline underline-offset-4"
+                  >
                     Abrir ficha do cliente
                   </Link>
                 )}
@@ -202,7 +279,8 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Cancelar o agendamento de {when.toLowerCase()}, {formatTime(apt.start)}?
+                    Cancelar o agendamento de {when.toLowerCase()},{" "}
+                    {formatTime(apt.start)}?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     O horário fica livre e a lista de espera do dia é avisada.
@@ -210,7 +288,10 @@ export function AppointmentSheet({ appointmentId, appointments, clubClients, onC
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Manter</AlertDialogCancel>
-                  <AlertDialogAction variant="destructive" onClick={() => change("canceled")}>
+                  <AlertDialogAction
+                    variant="destructive"
+                    onClick={() => change("canceled")}
+                  >
                     Cancelar agendamento
                   </AlertDialogAction>
                 </AlertDialogFooter>

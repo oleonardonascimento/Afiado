@@ -7,7 +7,9 @@ import { firstName } from "@/lib/labels";
 
 /** Só aceita destinos internos em ?next= (evita redirecionar para fora do site). */
 function safeNext(next: string | null): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/conta";
+  return next && next.startsWith("/") && !next.startsWith("//")
+    ? next
+    : "/conta";
 }
 
 export function SignInPanel() {

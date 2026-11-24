@@ -31,7 +31,11 @@ export function RoleSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="sm" aria-label={`Papel: ${ROLE_LABEL[role]}`}>
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-label={`Papel: ${ROLE_LABEL[role]}`}
+        >
           <span className="text-text-muted">Papel:</span> {ROLE_LABEL[role]}
           <ChevronDown strokeWidth={1.75} aria-hidden />
         </Button>
@@ -52,13 +56,19 @@ export function RoleSwitcher() {
           ))}
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled={resetDemo.isPending} onSelect={() => resetDemo.mutate()}>
+        <DropdownMenuItem
+          disabled={resetDemo.isPending}
+          onSelect={() => resetDemo.mutate()}
+        >
           <RotateCcw strokeWidth={1.75} aria-hidden />
           Resetar dados de demonstração
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() =>
-            updateSession.mutate({ staffId: null, role: null }, { onSuccess: () => router.push("/admin/entrar") })
+            updateSession.mutate(
+              { staffId: null, role: null },
+              { onSuccess: () => router.push("/admin/entrar") },
+            )
           }
         >
           <LogOut strokeWidth={1.75} aria-hidden />
