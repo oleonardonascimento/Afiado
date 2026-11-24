@@ -6,7 +6,9 @@ test("home tem cabeçalho, entrar e CTA de agendar", async ({ page }) => {
   const header = page.getByRole("banner");
   await expect(header.getByText("Afiado", { exact: false })).toBeVisible();
   await expect(header.getByRole("link", { name: "Entrar" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Agendar horário" }).first()).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Agendar horário" }).first(),
+  ).toBeVisible();
 });
 
 test("painel: menu e troca de papel", async ({ page, isMobile }, testInfo) => {
@@ -29,17 +31,27 @@ test("painel: menu e troca de papel", async ({ page, isMobile }, testInfo) => {
 
   await page.getByRole("button", { name: /Papel/ }).click();
   await page.getByRole("menuitemradio", { name: "Barbeiro" }).click();
-  await expect(page.getByRole("button", { name: /Papel: Barbeiro/ })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Papel: Barbeiro/ }),
+  ).toBeVisible();
   await openMore();
-  await expect(page.getByRole("link", { name: "Configurações" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Configurações" })).toHaveCount(
+    0,
+  );
   await expect(page.getByRole("link", { name: "Relatórios" })).toHaveCount(0);
   if (mobile) await page.keyboard.press("Escape");
 
   await page.reload();
-  await expect(page.getByRole("button", { name: /Papel: Barbeiro/ })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Papel: Barbeiro/ }),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: /Papel/ }).click();
-  await page.getByRole("menuitem", { name: "Resetar dados de demonstração" }).click();
-  await expect(page.getByText("Dados de demonstração restaurados")).toBeVisible();
+  await page
+    .getByRole("menuitem", { name: "Resetar dados de demonstração" })
+    .click();
+  await expect(
+    page.getByText("Dados de demonstração restaurados"),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: /Papel: Dono/ })).toBeVisible();
 });
