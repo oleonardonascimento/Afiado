@@ -1,5 +1,10 @@
 /** Agendar, remarcar e cancelar no mock — a V2 faz o mesmo no servidor. */
-import { NotFoundError, SlotTakenError, type BookingRequest } from "@/data/repositories";
+import {
+  NotFoundError,
+  OperationError,
+  SlotTakenError,
+  type BookingRequest,
+} from "@/data/repositories";
 import type { MockStore } from "@/data/mock/store";
 import { availableSlots, type Slot } from "@/domain/availability";
 import type { Appointment, DbSnapshot } from "@/domain/entities";
@@ -29,9 +34,31 @@ function findSlot(
   return slot;
 }
 
-export function bookAppointment(store: MockStore, request: BookingRequest): Appointment {
+/** Encaixe: usa o horário pedido sem checar conflitos (o painel avisa antes). */
+function fitInSlot(db: DbSnapshot, request: BookingRequest): Slot {
+  if (!request.professionalId)
+    throw new OperationError("Escolha o barbeiro do encaixe.");
+  const minutes = request.serviceIds.reduce(
+    (sum, id) =>
+      sum + (db.services.find((s) => s.id === id)?.durationMinutes ?? 0),
+    0,
+  );
+  const start = new Date(request.start);
+  return {
+    start: start.toISOString(),
+    end: new Date(start.getTime() + minutes * 60_000).toISOString(),
+    professionalId: request.professionalId,
+  };
+}
+
+export function bookAppointment(
+  store: MockStore,
+  request: BookingRequest,
+): Appointment {
   const db = store.read();
-  const slot = findSlot(db, request.serviceIds, request.professionalId, request.start);
+  const slot = request.allowOverlap
+    ? fitInSlot(db, request)
+    : findSlot(db, request.serviceIds, request.professionalId, request.start);
   const appointment: Appointment = {
     id: crypto.randomUUID(),
     clientId: request.clientId,
@@ -41,7 +68,8 @@ export function bookAppointment(store: MockStore, request: BookingRequest): Appo
     end: slot.end,
     status: "scheduled",
     priceCents: request.serviceIds.reduce(
-      (sum, id) => sum + (db.services.find((s) => s.id === id)?.priceCents ?? 0),
+      (sum, id) =>
+        sum + (db.services.find((s) => s.id === id)?.priceCents ?? 0),
       0,
     ),
     note: request.note.trim(),
@@ -64,7 +92,13 @@ export function rescheduleAppointment(
   const db = store.read();
   const current = db.appointments.find((a) => a.id === id);
   if (!current) throw new NotFoundError(`appointments/${id}`);
-  const slot = findSlot(db, current.serviceIds, change.professionalId, change.start, id);
+  const slot = findSlot(
+    db,
+    current.serviceIds,
+    change.professionalId,
+    change.start,
+    id,
+  );
   let updated = current;
   store.write((d) => {
     const target = d.appointments.find((a) => a.id === id);
@@ -89,7 +123,8 @@ export function cancelAppointment(store: MockStore, id: string): Appointment {
     updated = target;
     const day = dateOf(target.start);
     for (const entry of d.waitlist) {
-      if (entry.date === day && entry.notifiedAt === null) entry.notifiedAt = now;
+      if (entry.date === day && entry.notifiedAt === null)
+        entry.notifiedAt = now;
     }
   });
   if (!updated) throw new NotFoundError(`appointments/${id}`);

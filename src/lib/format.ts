@@ -33,3 +33,15 @@ export function formatPhone(digits: string): string {
 export function toZoned(iso: string): Date {
   return toZonedTime(iso, TZ);
 }
+
+/** Lê um valor digitado em reais ("45", "45,50", "R$ 1.234,56") e devolve centavos; null se inválido. */
+export function parseBRL(text: string): number | null {
+  const clean = text.replace(/R\$\s?/, "").replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
+  if (!/^\d+(\.\d{1,2})?$/.test(clean)) return null;
+  return Math.round(Number(clean) * 100);
+}
+
+/** Centavos no formato de edição ("45,50"), sem o símbolo. */
+export function centsToInput(cents: number): string {
+  return (cents / 100).toFixed(2).replace(".", ",");
+}

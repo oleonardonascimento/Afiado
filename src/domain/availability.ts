@@ -58,6 +58,15 @@ function intersect(a: TimeRange[], b: TimeRange[]): [number, number][] {
   return out;
 }
 
+/** Minutos de trabalho do barbeiro no dia (horário da casa ∩ do barbeiro, sem feriados). */
+export function workMinutes(shop: Barbershop, pro: Professional, date: string): number {
+  if (shop.closures.some((c) => c.date === date)) return 0;
+  const weekday = weekdayOf(date);
+  const shopRanges = shop.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
+  const proRanges = pro.hours.find((h) => h.weekday === weekday)?.ranges ?? [];
+  return intersect(shopRanges, proRanges).reduce((sum, [a, b]) => sum + (b - a), 0);
+}
+
 export function availableSlots(input: AvailabilityInput): Slot[] {
   const { date, shop, now } = input;
   const rules = shop.booking;

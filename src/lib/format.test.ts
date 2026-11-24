@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatBRL, formatDate, formatPhone, formatTime, formatWeekday } from "@/lib/format";
+import { centsToInput, formatBRL, formatDate, formatPhone, formatTime, formatWeekday, parseBRL } from "@/lib/format";
 
 describe("format", () => {
   it("formata moeda em centavos", () => {
@@ -17,5 +17,15 @@ describe("format", () => {
   it("formata telefone BR", () => {
     expect(formatPhone("61999998888")).toBe("(61) 99999-8888");
     expect(formatPhone("6133334444")).toBe("(61) 3333-4444");
+  });
+
+  it("lê e escreve valor digitado em reais", () => {
+    expect(parseBRL("45")).toBe(4500);
+    expect(parseBRL("45,5")).toBe(4550);
+    expect(parseBRL("R$ 1.234,56")).toBe(123456);
+    expect(parseBRL("")).toBeNull();
+    expect(parseBRL("abc")).toBeNull();
+    expect(parseBRL("-3")).toBeNull();
+    expect(centsToInput(4550)).toBe("45,50");
   });
 });

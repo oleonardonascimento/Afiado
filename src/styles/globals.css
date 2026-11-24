@@ -201,3 +201,21 @@
 @utility pole-stripe {
   background-image: var(--pole-stripe);
 }
+
+/* Agenda (PRD §8.2): hachura de faltou/cancelado e listrado cinza de bloqueio. */
+@utility hatched {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in oklab, var(--danger) 14%, transparent) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+@utility blocked {
+  background-color: var(--surface-2);
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in oklab, var(--border-strong) 22%, transparent) 0 6px,
+    transparent 6px 12px
+  );
+}

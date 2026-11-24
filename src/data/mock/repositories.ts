@@ -1,6 +1,18 @@
 import { NotFoundError, type Collection, type Repositories } from "@/data/repositories";
 import { createMockAuth } from "@/data/mock/auth";
 import { bookAppointment, cancelAppointment, rescheduleAppointment } from "@/data/mock/booking";
+import {
+  addCashMovement,
+  cancelOrder,
+  cancelSubscription,
+  closeCash,
+  closeOrder,
+  markCommissionsPaid,
+  openCash,
+  openOrderFromAppointment,
+  openWalkInOrder,
+  subscribe,
+} from "@/data/mock/operations";
 import type { MockStore } from "@/data/mock/store";
 import type { DbSnapshot } from "@/domain/entities";
 import { normalizePhone } from "@/domain/phone";
@@ -60,6 +72,14 @@ export function createMockRepositories(store: MockStore): Repositories {
   const clients = collection("clients");
   const appointments = collection("appointments");
   const auth = createMockAuth(store);
+  const orders = collection("orders");
+  const subscriptions = collection("subscriptions");
+  const commissions = collection("commissions");
+  /** Espera a latência e devolve uma cópia do resultado da operação. */
+  const run = async <T>(fn: () => T): Promise<T> => {
+    await store.delay();
+    return clone(fn());
+  };
 
   return {
     shop: {
@@ -123,12 +143,30 @@ export function createMockRepositories(store: MockStore): Repositories {
     },
     waitlist: collection("waitlist"),
     plans: collection("plans"),
-    subscriptions: collection("subscriptions"),
+    subscriptions: {
+      ...subscriptions,
+      subscribe: (input) => run(() => subscribe(store, input)),
+      cancel: (id) => run(() => cancelSubscription(store, id)),
+    },
     charges: collection("charges"),
-    orders: collection("orders"),
+    orders: {
+      ...orders,
+      openFromAppointment: (id) => run(() => openOrderFromAppointment(store, id)),
+      openWalkIn: ({ clientId, professionalId }) => run(() => openWalkInOrder(store, clientId, professionalId)),
+      close: (id, payments) => run(() => closeOrder(store, id, payments)),
+      cancel: (id) => run(() => cancelOrder(store, id)),
+    },
+    cash: {
+      open: (openingCents, staffId) => run(() => openCash(store, openingCents, staffId)),
+      addMovement: (input) => run(() => addCashMovement(store, input)),
+      close: (id, counted, note) => run(() => closeCash(store, id, counted, note)),
+    },
     cashSessions: collection("cashSessions"),
     cashMovements: collection("cashMovements"),
-    commissions: collection("commissions"),
+    commissions: {
+      ...commissions,
+      markPaid: (ids) => run(() => markCommissionsPaid(store, ids)),
+    },
     reviews: collection("reviews"),
     auth: {
       async requestCode(phone) {

@@ -4,7 +4,7 @@
  * RoleSwitcher — troca o papel da demonstração (Dono/Barbeiro/Recepção) e
  * reseta os dados. Só existe na V1 (RF-52). Teclado: setas no menu (Radix).
  */
-import { ChevronDown, RotateCcw } from "lucide-react";
+import { ChevronDown, LogOut, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StaffRoleSchema } from "@/domain/entities";
+import { useRouter } from "next/navigation";
 import { ROLE_LABEL } from "@/lib/labels";
 import { useResetDemo } from "@/features/demo/hooks/useResetDemo";
 import { useStaffRole, useUpdateSession } from "@/hooks/useSession";
@@ -25,6 +26,7 @@ export function RoleSwitcher() {
   const role = useStaffRole();
   const updateSession = useUpdateSession();
   const resetDemo = useResetDemo();
+  const router = useRouter();
 
   return (
     <DropdownMenu>
@@ -53,6 +55,14 @@ export function RoleSwitcher() {
         <DropdownMenuItem disabled={resetDemo.isPending} onSelect={() => resetDemo.mutate()}>
           <RotateCcw strokeWidth={1.75} aria-hidden />
           Resetar dados de demonstração
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() =>
+            updateSession.mutate({ staffId: null, role: null }, { onSuccess: () => router.push("/admin/entrar") })
+          }
+        >
+          <LogOut strokeWidth={1.75} aria-hidden />
+          Sair do painel
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

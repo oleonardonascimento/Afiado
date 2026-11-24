@@ -13,6 +13,8 @@ import type {
   ClientSource,
   Commission,
   Order,
+  Payment,
+  PaymentMethod,
   Plan,
   Product,
   Professional,
@@ -52,6 +54,14 @@ export class InvalidCodeError extends Error {
   }
 }
 
+/** Operação recusada por regra de negócio; a mensagem já é o texto para o usuário. */
+export class OperationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "OperationError";
+  }
+}
+
 export type BookingRequest = {
   clientId: string;
   serviceIds: string[];
@@ -60,6 +70,15 @@ export type BookingRequest = {
   start: string;
   note: string;
   origin: "online" | "panel";
+  /** Encaixe do painel: ignora a checagem de horário livre (exige barbeiro). */
+  allowOverlap?: boolean;
+};
+
+export type NewMovement = {
+  kind: "income" | "expense" | "withdrawal";
+  method: PaymentMethod;
+  amountCents: number;
+  description: string;
 };
 
 export type SignInRequest = {
@@ -95,12 +114,30 @@ export type Repositories = {
   };
   waitlist: Collection<WaitlistEntry>;
   plans: Collection<Plan>;
-  subscriptions: Collection<Subscription>;
+  subscriptions: Collection<Subscription> & {
+    /** Simula a 1ª cobrança aprovada. Recusa se o cliente já tem assinatura vigente. */
+    subscribe(input: { clientId: string; planId: string; paymentMethod: "pix" | "card" }): Promise<Subscription>;
+    /** Benefício continua até o fim do período pago (status "canceling"). */
+    cancel(id: string): Promise<Subscription>;
+  };
   charges: Collection<Charge>;
-  orders: Collection<Order>;
+  orders: Collection<Order> & {
+    /** Conclui o atendimento e abre (ou devolve) a comanda dele, já com o benefício do Clube. */
+    openFromAppointment(appointmentId: string): Promise<Order>;
+    /** Comanda avulsa (sem agendamento). */
+    openWalkIn(input: { clientId: string | null; professionalId: string }): Promise<Order>;
+    /** Valida, registra no caixa aberto, gera comissões e baixa estoque. */
+    close(id: string, payments: Payment[]): Promise<Order>;
+    cancel(id: string): Promise<Order>;
+  };
+  cash: {
+    open(openingCents: number, staffId: string): Promise<CashSession>;
+    addMovement(input: NewMovement): Promise<CashMovement>;
+    close(id: string, counted: Record<PaymentMethod, number>, note: string): Promise<CashSession>;
+  };
   cashSessions: Collection<CashSession>;
   cashMovements: Collection<CashMovement>;
-  commissions: Collection<Commission>;
+  commissions: Collection<Commission> & { markPaid(ids: string[]): Promise<void> };
   reviews: Collection<Review>;
   auth: {
     /** V1: o código é simulado e devolvido para ser exibido na tela. */
