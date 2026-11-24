@@ -73,3 +73,16 @@ export function capitalizeFirst(text: string): string {
 export function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? name;
 }
+
+/** "Corte à vontade" ou "4× Barba por mês". */
+export function benefitLabel(serviceName: string, monthlyLimit: number | null): string {
+  return monthlyLimit === null ? `${serviceName} à vontade` : `${monthlyLimit}× ${serviceName} por mês`;
+}
+
+/** Status curto para tabelas e filtros. */
+export const SUBSCRIPTION_STATUS_SHORT: Record<SubscriptionStatus, string> = {
+  active: "Ativo",
+  past_due: "Pagamento pendente",
+  canceling: "Cancelando",
+  canceled: "Cancelado",
+};

@@ -3,6 +3,7 @@ import type { Appointment, Client, Order, Plan, Product, Subscription } from "@/
 import {
   averageTicketCents,
   birthdaysBetween,
+  clubIndicators,
   groupSum,
   lapsedClients,
   lowStock,
@@ -142,5 +143,29 @@ describe("metrics", () => {
       ["2026-11-24"],
     );
     expect(result).toEqual([{ professionalId: "pro-1", name: "Rafael", pct: 40 }]);
+  });
+
+  it("indicadores do Clube no mês", () => {
+    const plans = [{ id: "p1", priceCents: 10000 }] as Plan[];
+    const sub = (over: Partial<Subscription>) =>
+      ({
+        planId: "p1",
+        status: "active",
+        startedAt: "2026-06-01T12:00:00.000Z",
+        canceledAt: null,
+        ...over,
+      }) as Subscription;
+    const result = clubIndicators(
+      [
+        sub({}),
+        sub({ startedAt: "2026-11-10T12:00:00.000Z" }),
+        sub({ status: "canceling", canceledAt: "2026-11-05T12:00:00.000Z" }),
+        sub({ status: "canceled", canceledAt: "2026-10-05T12:00:00.000Z" }),
+        sub({ status: "past_due" }),
+      ],
+      plans,
+      "2026-11-01T03:00:00.000Z",
+    );
+    expect(result).toEqual({ active: 3, mrrCents: 30000, newThisMonth: 1, canceledThisMonth: 1, pastDue: 1 });
   });
 });

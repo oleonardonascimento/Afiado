@@ -127,3 +127,14 @@ export function occupancyByProfessional(
       };
     });
 }
+
+/** Indicadores do Clube: ativos (inclui "cancelando"), MRR, novos e cancelados no mês, inadimplentes. */
+export function clubIndicators(subscriptions: Subscription[], plans: Plan[], monthStartIso: string) {
+  return {
+    active: subscriptions.filter((s) => s.status === "active" || s.status === "canceling").length,
+    mrrCents: mrrCents(subscriptions, plans),
+    newThisMonth: subscriptions.filter((s) => s.startedAt >= monthStartIso).length,
+    canceledThisMonth: subscriptions.filter((s) => s.canceledAt !== null && s.canceledAt >= monthStartIso).length,
+    pastDue: subscriptions.filter((s) => s.status === "past_due").length,
+  };
+}
